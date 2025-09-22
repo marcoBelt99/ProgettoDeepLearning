@@ -12,6 +12,8 @@ Come possibile aiuto, guarderei qualche articolo su keypoint detection e pose es
 - https://www.tensorflow.org/lite/examples/pose_estimation/overview
 - https://www.analyticsvidhya.com/blog/2021/10/human-pose-estimation-using-machine-learning-in-python/
 
+In allegato anche [un file](https://github.com/marcoBelt99/ProgettoDeepLearning/blob/main/PUNTI%20DI%20REPERE%20CEFALOMETRIA.docx) che spiega i punti di Repere che dobbiamo andare a localizzare.
+
 L'idea è quella di implementare diverse reti, una per gruppo di punti, per predire le coordinate dei seguenti raggruppamenti (il numero indica l'indice nel file di testo)
 - 0,1,4,5 (S,N,A,B)
 - 2,3,7,8 (Sna, Snp, Gn, Go)
