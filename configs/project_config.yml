@@ -1,0 +1,37 @@
+# configs/project_config.yml
+
+# Parametri generali del progetto
+project_name: "CefalometriaKeypoints"
+output_dir: "models/checkpoints"
+
+# Parametri del dataset e del dataloader
+dataset:
+  path: "dataset"
+  image_size: [224, 224] # Per il ridimensionamento delle immagini
+  batch_size: 32
+
+# Configurazione dell'addestramento
+training:
+  epochs: 50
+  learning_rate: 0.001
+  optimizer: "Adam"
+  loss_function: "MSE"
+
+# Definizione dei gruppi di punti e dei modelli associati
+keypoint_groups:
+  gruppo_1:
+    indices: [0, 1, 4, 5]
+    name: "SNA B"
+    num_outputs: 8 # 4 punti * 2 coordinate (x,y)
+  gruppo_2:
+    indices: [2, 3, 7, 8]
+    name: "Sna Snp Gn Go"
+    num_outputs: 8
+  gruppo_3:
+    indices: [9, 10, 11, 12]
+    name: "U1 L1"
+    num_outputs: 8
+  gruppo_4:
+    indices: [6, 13]
+    name: "Pg mesial"
+    num_outputs: 4

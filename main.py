@@ -5,39 +5,53 @@ from utils.visualization import im_show, plot_metrics
 import torchvision
 from training.train_validate import train_and_validate
 from testing.test_model import test_model
+
+
+import yaml
+from src.dataset import CustomKeypointDataset
+from src.model import KeypointModel
+from src.train import train_model
  
 def main():
-    # Configurazioni iniziali
-    epochs = 10
-    batch_size = 64
-    classes = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
- 
-    # Preparazione dei DataLoader per il training, la validazione e il test
-    train_loader, validation_loader, test_loader = prepare_data_loaders(batch_size)
-    
-    # Inizializzazione del modello
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    net = Net().to(device)
-    
-    # Visualizzazione di alcune immagini dal training set con le etichette corrispondenti
-    dataiter = iter(train_loader)
-    images, labels = next(dataiter)
-    im_show(torchvision.utils.make_grid(images))
- 
-    # Stampa delle etichette corrispondenti
-    print('Labels:', ' '.join(f'{classes[labels[j]]}' for j in range(batch_size)))
- 
-    # Esegui la funzione di addestramento e validazione e ottieni le metriche
-    train_losses, validation_losses, validation_accuracies = train_and_validate(net, train_loader, validation_loader, epochs)
-   
-    # Visualizza la loss per training e validazione su un grafico
-    plot_metrics(train_losses, validation_losses, metric_name="Loss")
 
-    # Visualizza l'accuratezza della validazione su un grafico separato
-    plot_metrics(validation_accuracies, metric_name="Accuracy")
- 
-    # Test del modello
-    test_model(net, test_loader, classes)
+    '''
+    File di avvio progetto.
+    Punto di ingresso del progetto: da qui chiamo le funzioni di addestramento per i 4 diversi modelli.
+    '''
+   # Definizione dei gruppi
+    gruppi_punti = {
+        "gruppo_1": [0, 1, 4, 5],
+        "gruppo_2": [2, 3, 7, 8],
+        "gruppo_3": [9, 10, 11, 12],
+        "gruppo_4": [6, 13]
+    }
+
+    for nome_gruppo, indici_punti in gruppi_punti.items():
+        print(f"--- Addestramento per {nome_gruppo} ---")
+        
+        # 1. Preparazione dei dati
+        num_keypoints = len(indici_punti)
+        dataset = CustomDataset(img_dir="...", txt_dir="...", keypoint_indices=indici_punti)
+        dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+        
+        # 2. Inizializzazione del modello
+        modello = KeypointModel(num_output=num_keypoints * 2)
+        
+        # 3. Ciclo di addestramento e validazione
+        # ... (Il tuo codice di addestramento, ottimizzatore, loss, ecc.)
+        
+        # 4. Salvataggio del modello
+        torch.save(modello.state_dict(), f"modelli/{nome_gruppo}_model.pth")
+        
+    print("--- Addestramento completato per tutti i gruppi! ---")
  
 if __name__ == '__main__':
-   main()
+   
+
+   '''
+   Questa strategia ti permetterà di specializzare ogni rete per un compito più circoscritto,
+   il che spesso porta a prestazioni migliori rispetto a un'unica rete che deve imparare a prevedere
+   tutti i punti contemporaneamente, specialmente se i raggruppamenti hanno una logica anatomica o strutturale.
+   
+   '''
+   main()   

@@ -120,12 +120,12 @@ Gli articoli consigliati parlano di:
 1. Keras example keypoint detection: 
     - per predire keypoints sul Dataset MPII (di pose umane)
     - usa una CNN che predice direttamente le coordinate (regressione).
-    - Mostra bene come costruire dataset, loss e loop di training => è praticamente lo stesso task che devo
+    - mostra bene come costruire dataset, loss e loop di training => è praticamente lo stesso task che devo
     fare io, solo che anzichè Keras, io uso PyTorch.
 2. Towards DataScience: Facial KeyPoints Detection: 
     - è un tutorial con Dataset di volti e annotazioni di punti facciali (occhi, naso, bocca)
     - spiega bene la parte di preprocessing, normalizzazione e data augmentation;
-    - M0stra anche come dividere i punti in sottoinsiemi => è praticamente lo stesso problema, solo che i miei sono
+    - mostra anche come dividere i punti in sottoinsiemi => è praticamente lo stesso problema, solo che i miei sono
     i Punti di Repere
 3. TensorFlow Lite: Pose Estimation:
     - mostra che i keypoints possono essere predetti usando heatmap probabilistiche (anzichè come coordinate dirette)

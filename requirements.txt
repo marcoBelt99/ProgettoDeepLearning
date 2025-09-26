@@ -1,0 +1,20 @@
+# Pacchetti di base per data science e deep learning
+torch>=1.13.0
+torchvision>=0.14.0
+torchaudio>=0.13.0
+numpy>=1.23.5
+pandas>=1.5.2
+matplotlib>=3.6.2
+seaborn>=0.12.2
+
+# Pacchetti per la gestione dei dati (file zip)
+# Non è richiesto un pacchetto specifico per l'unzipping in quanto Python lo gestisce nativamente
+# con il modulo 'zipfile'. Se però usi librerie di terze parti, aggiungile qui.
+
+# Pacchetti per la gestione della GPU (se necessario)
+# Se utilizzi una GPU, assicurati che la versione di PyTorch sia compatibile con la tua versione di CUDA.
+# In questo caso, le versioni specificate includono il supporto CUDA di default.
+
+# Altri pacchetti comuni per progetti di deep learning
+scikit-learn>=1.2.0
+pillow>=9.4.0
