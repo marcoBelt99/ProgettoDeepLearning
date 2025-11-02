@@ -20,7 +20,7 @@ class CustomImageDataset(Dataset):
     ######
     Questa classe:
     - Deve essere in grado di gestire i diversi gruppi di punti. 
-    - Durante l'inizializzazione del dataset, dovrai specificare quale gruppo di punti stai addestrando. 
+    - Durante l'inizializzazione del dataset, devo specificare quale gruppo di punti sto addestrando. 
     
     '''
     def __init__(self, annotations_file, img_dir, transform=None, target_transform=None):

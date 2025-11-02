@@ -24,6 +24,14 @@ Nel file di testo, ogni riga contiene l'indice del punto, alcune informazioni in
 
 Eventualmente, se si ha tempo, confrontando i risultati con una rete che prova a predirli tutti insieme.
 
+
+Altre considerazioni:
+- Lavoro in ambito di immagini: ho un DS con tante immagini radiografiche
+- Su ogni immagine devo analizzare dei punti (14 punti) per poter fare una regressione di valori
+- (L'accuratezza se anche è al 60% devo sapere il perchè lo è)
+- Devo analizzare il DS molto bene, facendo un buon pre-processing!
+
+
 ## Dataset
 
 Il Dataset usato è così composto:

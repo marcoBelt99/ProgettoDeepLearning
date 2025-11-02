@@ -38,26 +38,26 @@ def parse_txt_file(txt_path):
     
     return keypoints
 
-def create_dataset_dataframe(data_dir):
+def create_dataframe(dataset_dir):
     """
     Crea un DataFrame con tutte le immagini e i relativi keypoint.
     
     Args:
-        data_dir: Directory contenente immagini e file .txt
+        dataset_dir: Directory contenente immagini e file .txt
     
     Returns:
         pandas.DataFrame con colonne: image_path, keypoints, num_keypoints
     """
-    data_dir = Path(data_dir)
+    dataset_dir = Path(dataset_dir)
     dataset_rows = []
 
     
     # Trova tutte le immagini
     image_extensions = {'.jpg', '.jpeg', '.png', '.bmp'}
-    image_files = [f for f in data_dir.iterdir() 
+    image_files = [f for f in dataset_dir.iterdir()
                    if f.suffix.lower() in image_extensions]
     
-    print(f"Trovate {len(image_files)} immagini")
+    print(f"\nTrovate {len(image_files)} immagini")
     
     for img_path in image_files:
         # Cerca il file .txt corrispondente
@@ -67,7 +67,7 @@ def create_dataset_dataframe(data_dir):
             try:
                 keypoints = parse_txt_file(txt_path) # chiamata a parse_txt_file()
                 
-                if keypoints:  # Solo se abbiamo trovato keypoint
+                if keypoints:  # Solo se ho trovato keypoint
                     dataset_rows.append({
                         'image_path': str(img_path),
                         'keypoints': keypoints,
@@ -87,7 +87,7 @@ def analyze_dataset(df):
     """
     Analizza il dataset e genera statistiche e visualizzazioni.
     """
-    print("=== ANALISI DATASET ===")
+    print("\n=== ANALISI DATASET ===")
     print(f"Numero totale di campioni: {len(df)}")
     print(f"Numero medio di keypoint per immagine: {df['num_keypoints'].mean():.2f}")
     print(f"Min keypoint per immagine: {df['num_keypoints'].min()}")
@@ -139,7 +139,7 @@ def analyze_dataset(df):
     
     plt.tight_layout()
     # plt.savefig('data/processed/dataset_analysis.png')
-    plt.savefig('src/utils/dataset_analysis.png')
+    plt.savefig('../src/utils/dataset_analysis.png')
     plt.show()
     
     return coord_stats
@@ -172,12 +172,12 @@ def visualize_sample_with_keypoints(df, sample_idx=0):
     
     plt.title(f'Immagine con {len(keypoints)} Keypoint')
     plt.axis('off')
-    plt.savefig(f'data/processed/sample_{sample_idx}_with_keypoints.png', 
+    plt.savefig(f'../src/data/sample_{sample_idx}_with_keypoints.png',
                 bbox_inches='tight', dpi=150)
     plt.show()
 
 
-def unzip_dataset(data_dir):
+def unzip_dataset( data_dir ):
     '''
     Unzip archivio del dataset.
     '''
@@ -185,7 +185,7 @@ def unzip_dataset(data_dir):
     DATASET_NAME_FILE_ZIP = data_dir + DATASET_NAME_FILE + '.zip'
 
     # Verifico che la directory esista
-    if os.path.exists(data_dir):
+    if os.path.exists( data_dir ):
         print("Directory trovata: ", data_dir)
         print("Contenuto della directory:", os.listdir(data_dir))
 
@@ -199,7 +199,7 @@ def unzip_dataset(data_dir):
 
     if 'dataset' not in os.listdir('../data'):
         # Estrazione del file: solo quando la cartella 'dataset' non e' gia' presente
-        with zipfile.ZipFile(DATASET_NAME_FILE_ZIP, 'r') as zip_ref:
+        with zipfile.ZipFile( DATASET_NAME_FILE_ZIP, 'r' ) as zip_ref:
             # zip_ref.extractall(data_dir)
             zip_ref.extractall('../data')
     else:
@@ -224,7 +224,7 @@ def main():
     unzip_dataset( data_raw_dir )
 
     ## Creo un DataFrame Pandas a partire dai dati estratti
-    df = create_dataset_dataframe(dataset_dir)
+    df = create_dataframe(dataset_dir)
     
     if len(df) == 0:
         print("Nessun dato trovato! Verifica il percorso del dataset.")
@@ -242,8 +242,8 @@ def main():
             print(f"Errore nella visualizzazione del campione {i}: {e}")
     
     # Salva il DataFrame processato
-    df.to_pickle("data/processed/dataset.pkl")
-    coord_stats.to_csv("data/processed/coordinate_stats.csv", index=False)
+    df.to_pickle("../src/data/dataset.pkl")
+    coord_stats.to_csv("../src/data/coordinate_stats.csv", index=False)
     
     print(f"\nPreprocessing completato!")
     print(f"Dataset salvato in: data/processed/dataset.pkl")

@@ -1,5 +1,5 @@
 import torch
-from models.cnn_model import Net
+from models.cnn_model_esempio import Net
 from utils.data_preparation import prepare_data_loaders
 from utils.visualization import im_show, plot_metrics
 import torchvision
