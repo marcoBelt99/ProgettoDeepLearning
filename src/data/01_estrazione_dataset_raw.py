@@ -1,22 +1,42 @@
 import pandas as pd
 import os
+import zipfile
 
-# Verifico se esiste la directory in cui e' presente il mio DATASET.
-# Se presente, verifico che ci sia anche lo zip del DS
-
-DATASET_DIR = '../../data'
-
-## Creo il percorso del dataset all'interno della cartella che contiene sia lo zip che la sua estrazione.
-DATASET_PATH = os.path.join(DATASET_DIR, 'dataset')
-
-DATASET_NAME_FILE = '/row/dataset_14_punti_pulito_06072023'
-DATASET_NAME_FILE_ZIP = DATASET_DIR + DATASET_NAME_FILE + '.zip'
+# Parametri da usare in giro per l'app
+from configs.parametri_app import *
 
 
-# DATASET_PATH =  DATASET_DIR + '/dataset'
 
-# Lista di tutti i nomi dei files presenti dentro alla cartella in cui e' contenuto il dataset
-FILES = os.listdir( DATASET_PATH )
+def unzip_dataset():
+    '''
+    Unzip archivio del dataset.
+    '''
+
+
+    # Verifico che la directory principale (che contiene sia lo zip che il dataset grezzo) esista
+    if os.path.exists( DATA_DIR ):
+        print("Directory trovata: ", DATA_DIR)
+        print("Contenuto della directory:", os.listdir( DATA_DIR ))
+
+        # Verifico che il file zip esista
+        if os.path.exists( DATASET_ZIP ):
+            print("File zip del Dataset presente.")
+        else:
+            print("File zip del Dataset non trovato.")
+    else:
+        print("Directory non trovata:", DATA_DIR)
+
+    # Estrazione del file: solo quando la cartella 'dataset' non e' gia' presente
+    if 'dataset' not in os.listdir( DATA_DIR ):
+        with zipfile.ZipFile( DATASET_ZIP, 'r' ) as zip_ref:
+            zip_ref.extractall( DATA_DIR )
+    else:
+        print("\nLa cartella e' gia' stata estratta dallo zip\n")
+
+    # Controllo del contenuto estratto
+    print(os.listdir( DATA_DIR ))
+
+
 
 
 lista_files_txt = sorted( [t for t in FILES if t.endswith(".txt") ], key=lambda nf: int(nf.split('.')[0]) )
@@ -92,13 +112,20 @@ def prepara_dataset_completo(DIR_ANNOTAZIONI, lista_nomi_files_jpg: list[str], l
     return dati
 
 
+def main():
+    """
+    Funzione principale per il preprocessing.
+    """
+
+    print("\nInizio preprocessing del dataset...")
+
+    ## La prima operazione è quella di unzippare il DS se è la prima volta
+    unzip_dataset()
 
 
-## Richiamo la funzione
+    ## Richiamo la funzione
+    dati = prepara_dataset_completo(DATASET_PATH, lista_immagini, lista_files_txt, dati)
 
-
-
-
-dati = prepara_dataset_completo(DATASET_PATH, lista_immagini, lista_files_txt, dati)
-
-dati.to_csv(f"{DATASET_DIR}/dataframe_master.csv", index=False)
+    # Salvataggio dei dati processati in file csv.
+    # In questo modo posso leggere il DF direttamente.
+    dati.to_csv(f"{DATA_DIR}/dataframe_master.csv", index=False)
