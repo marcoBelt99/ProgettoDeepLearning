@@ -1,7 +1,6 @@
 # Pacchetti di base per data science e deep learning
 torch>=1.13.0
 torchvision>=0.14.0
-torchaudio>=0.13.0
 numpy>=1.23.5
 pandas>=1.5.2
 matplotlib>=3.6.2
@@ -18,3 +17,6 @@ seaborn>=0.12.2
 # Altri pacchetti comuni per progetti di deep learning
 scikit-learn>=1.2.0
 pillow>=9.4.0
+PyYAML>=6.0
+
+opencv-python # per installare open cv
