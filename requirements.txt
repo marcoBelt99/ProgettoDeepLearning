@@ -20,3 +20,5 @@ pillow>=9.4.0
 PyYAML>=6.0
 
 opencv-python # per installare open cv
+
+pytest # per fare qualche test unitario

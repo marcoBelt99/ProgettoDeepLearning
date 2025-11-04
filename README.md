@@ -42,3 +42,7 @@ Ogni file di testo è strutturato nel seguente modo:
 
 ![alt text](/altro/file-txt-composizione.png)
 
+## Funzionamento
+
+Inserire lo zip del dataset dentro `/data/raw`.
+

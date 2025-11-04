@@ -185,28 +185,28 @@ def unzip_dataset( data_dir ):
     DATASET_NAME_FILE_ZIP = data_dir + DATASET_NAME_FILE + '.zip'
 
     # Verifico che la directory esista
-    if os.path.exists( data_dir ):
-        print("Directory trovata: ", data_dir)
-        print("Contenuto della directory:", os.listdir(data_dir))
-
-        # Verifico che il file zip esista
-        if os.path.exists(DATASET_NAME_FILE_ZIP):
-            print("File zip del Dataset presente.")
-        else:
-            print("File zip del Dataset non trovato.")
-    else:
-        print("Directory non trovata:", data_dir)
-
-    if 'dataset' not in os.listdir('../data'):
-        # Estrazione del file: solo quando la cartella 'dataset' non e' gia' presente
-        with zipfile.ZipFile( DATASET_NAME_FILE_ZIP, 'r' ) as zip_ref:
-            # zip_ref.extractall(data_dir)
-            zip_ref.extractall('../data')
-    else:
-        print("\nLa cartella e' gia' stata estratta dallo zip\n")
-
-    # Controllo del contenuto estratto
-    print(os.listdir(data_dir))
+    # if os.path.exists( data_dir ):
+    #     print("Directory trovata: ", data_dir)
+    #     print("Contenuto della directory:", os.listdir(data_dir))
+    #
+    #     # Verifico che il file zip esista
+    #     if os.path.exists(DATASET_NAME_FILE_ZIP):
+    #         print("File zip del Dataset presente.")
+    #     else:
+    #         print("File zip del Dataset non trovato.")
+    # else:
+    #     print("Directory non trovata:", data_dir)
+    #
+    # if 'dataset' not in os.listdir('../data'):
+    #     # Estrazione del file: solo quando la cartella 'dataset' non e' gia' presente
+    #     with zipfile.ZipFile( DATASET_NAME_FILE_ZIP, 'r' ) as zip_ref:
+    #         # zip_ref.extractall(data_dir)
+    #         zip_ref.extractall('../data')
+    # else:
+    #     print("\nLa cartella e' gia' stata estratta dallo zip\n")
+    #
+    # # Controllo del contenuto estratto
+    # print(os.listdir(data_dir))
 
 
 def main():

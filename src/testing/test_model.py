@@ -1,5 +1,10 @@
 import torch
 
+
+
+
+
+
 def test_model(net, test_loader, classes):
     '''
     - net: modello di RN che sarà testato.

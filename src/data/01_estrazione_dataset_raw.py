@@ -1,4 +1,3 @@
-
 import zipfile
 
 # Parametri da usare in giro per l'app
