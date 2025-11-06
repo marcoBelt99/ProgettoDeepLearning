@@ -1,52 +1,116 @@
+import os
+import matplotlib.pyplot as plt
 import albumentations as A
 import cv2
 import pandas as pd
+import numpy as np
+from albumentations import Compose
 
-## Esempio di pipeline minimale che funziona con i keypoints
-# il parametro keypoint_params di A.Compose definisce il formato per le coordinate
-# dei keypoints
-transform = A.Compose([
-    A.RandomCrop(width=330, height=330),
-    A.RandomBrightnessContrast(p=0.2),
-], keypoint_params=A.KeypointParams(format='xy'))
+from src.data.p04_preparazione_dataframe import prepara_dataset_completo
+from configs.parametri_app import num_totale_punti
 
 
-
-
-# In modo più completo, con tutti i possibili settaggi
-# per A.KeypointParams, come:
-# - label_fields: oltre ai keypoints, per alcuni task di computer vision ci possono essere
-#   altre etichette, come elbow, knee o wrist (nel caso ad esempio della Pose Estimation).
-# - remove_invisible: se True, Albumentations non ritorna i keypoints invisibili
-#   (quindi, se non passo questo argomento Albumentations non ritorna i keypoints invisibili).
-#   Perchè invisibile? Perchè dopo la augmentation, alcuni keypoints possono essere invisibili
-#   poichè risulteranno posizionati al di fuori dell'area dell'immagine aumentata
-#   Es) se ritaglio (crop) una parte di immagine, tutti i keypoints al di fuori dell'area croppata
-#   diventeranno invisibili.
-# - angle_in_degrees: se True (di default lo è), Albumentations si aspetta che il valore dell'angolo nei
-#   formati xya, xyas e xysa sia definito in angoli. Se angle_degrees è impostato a False, Albumentations
-#   si aspetta che il valore dell'angolo sia specificato in radianti.
-# Questi settaggi non hanno effetto per i formati xy e yx, perchè questi formati non usano gli angoli.
 '''
-transform = A.Compose([
-    A.RandomCrop(width=330, height=330),
-    A.RandomBrightnessContrast(p=0.2),
-], keypoint_params=A.KeypointParams(format='xy',
-                                    label_fields=['class_labels'],
-                                    remove_invisible=True,
-                                    angle_in_degrees=True))
+Provo a:
+- creare un dataset composto da due immagini e due relativi file txt di annotazione.
+- crare delle augmentation sia delle immagini che dei relativi keypoints, tramite
+  le trasformazioni offerte da Albumentations.
 '''
 
-
-#Lettura immagine e keypoints associati da disco
-image = cv2.imread("/path/to/image.jpg")
-image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+### Seguo la documentazione di albumentations:
+### https://albumentations.ai/docs/3-basic-usage/keypoint-augmentations/
 
 
+def visualizzaza_immagine_con_keypoints(img, keypoints, titolo):
 
-# Albumentations expects keypoints to be represented as a NumPy array with shape (num_keypoints, 2+).
-keypoints = pd.Series( index=["x", "y"])
+    '''
+    Visualizza l'immagine e i suoi keypoints associati.
 
-dati = pd.read_csv('2.txt', sep=',', header=None)
+    Args:
+        img: immagine in formato RGB (compatibile con matplotlib).
+        keypoints: annotazioni delle coordinate (x,y) dell'immagine.
+                   sono rappresentati mediante una lista di coppie.
+    '''
+    for kp in keypoints:
+        cv2.circle(img, (int(kp[0]), int(kp[1])), 5, (255, 0, 0), -1)
 
-keypoints = dati[ dati["x"], dati["y"] ]
+    ## Visualizzo l'immagine con matplotlib
+    plt.figure(figsize=(6, 6))
+    plt.imshow(img)
+    plt.title(titolo)
+    plt.axis('off')
+    plt.show()
+
+
+
+'''
+Costruzione delle trasformazioni desiderate (e sensate).
+'''
+transform : Compose = A.Compose([
+    # A.RandomCrop(width=900, height=900),
+    A.Resize(width=512, height=512), # Resize per portare ogni immagine a cui applico
+            # le trasformazioni ad una stessa dimensione, utile come input per la rete neurale
+            # che sceglierò di adottare.
+    A.RandomRotate90(p=0.5),
+    A.RandomBrightnessContrast(p=0.5),
+], keypoint_params=A.KeypointParams(format='xy', remove_invisible=False))
+
+    # La variabile transform contiene una funzione ( trasform(image, keypoints) ) a cui passerò sia l'immagine che i keypoints
+
+
+def main():
+
+    #######################################
+    ######## (1) Preparazione dataset #####
+    #######################################
+    dati : pd.DataFrame = pd.DataFrame(columns=['path_img'] + # parto da 1 per escludere la colonna 'path_img'
+                                               [f'punto_{n}_{coord}' for n in range(1, num_totale_punti + 1) for coord in
+                                               ('X', 'Y')])  # +1 per comprendere anche il 14°-esimo punto nel range
+
+    # (i dati si trovano nella current directory in questo caso)
+    dati = prepara_dataset_completo(os.getcwd(), os.listdir(os.getcwd()), dati)
+
+    print("\nDataframe completo per i due campioni:\n", dati)
+
+
+    # Dovrei ciclare per ogni riga del DF (in questo caso 2 righe)
+    for i in range(0, dati.shape[0]):
+        print(f"Immagine {i+1}")
+
+        ## Estraggo la riga del DataFrame
+        riga = dati.iloc[i]
+        img_path = riga['path_img']
+
+        ## Lettura immagine con opencv
+        #  visto che devo visualizzare l'immagine con matplotlib
+        #  converto da BGR (formato usato da opencv) in RGB (formato
+        #  usato da matplotlib).
+        image = cv2.imread(img_path)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        # Costruisco i keypoints prendendoli dal dataset
+        keypoints = [ (riga[f'punto_{k}_X'], riga[f'punto_{k}_Y']) for k in range(1, num_totale_punti + 1)]
+
+        # trasformo da lista python ad array numpy per vederli meglio su stdout
+        print("\nKeypoints originali:\n", np.asarray(keypoints, dtype=np.float32))
+
+        ## Visualizzazione d'esempio
+        visualizzaza_immagine_con_keypoints(image, keypoints, f"Originale: {i + 1}")
+
+
+        ###############################################################################
+        ######## (2) Applico la funzione trasform() all'immagine e ai keypoints.  #####
+        ###############################################################################
+        transformed = transform(image=image, keypoints=keypoints)
+
+        ## Recupero sia l'immagine aumentata che i relativi keypoints aumentati (ad essa associati)
+        aug_image = transformed["image"]
+        aug_keypoints = transformed["keypoints"]
+
+        print("\nKeypoints trasformati:\n", aug_keypoints)
+
+        ## Visualizzazione d'esempio
+        visualizzaza_immagine_con_keypoints(aug_image, aug_keypoints, f"Aumentata: {i + 1}")
+
+if __name__ == '__main__':
+    main()

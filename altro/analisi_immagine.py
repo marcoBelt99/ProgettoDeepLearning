@@ -5,6 +5,7 @@ def visualizza_immagine(nome_immagine):
     fig, ax = plt.subplots(figsize=(8,8))
     ax.imshow(image)
     ax.axis('off') # rimuovo gli assi cartesiani che non mi interessano
+    plt.title("Cefalometria")
     plt.show()
 
 visualizza_immagine('cefalometria.jpg')

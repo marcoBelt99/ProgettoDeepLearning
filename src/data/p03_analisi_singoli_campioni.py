@@ -20,7 +20,6 @@ Analisi di un'immagine e del relativo file di testo ad essa associato.
 # Analisi immagine
 ########################
 
-
 def analizza_immagine(immagine, campione_random):
     '''
     Funzione principale di analisi dell'immagine.
@@ -40,9 +39,9 @@ def analizza_immagine(immagine, campione_random):
             analizza_immagine_CV2(immagine)
 
         except Exception as e:
-            print(f"Errore su immagine {campione_random}: {e}")
+            print(f"{fail}Errore su immagine {campione_random}: {e}")
     else:
-        print(f"L'immagine {campione_random}.jpg non esiste.")
+        print(f"{fail}L'immagine {campione_random}.jpg non esiste.")
 
 
 
@@ -52,13 +51,13 @@ def controlla_modalita_colore(immagine_PIL):
   per verificare se essa è a colori (3 canali) o in scala di grigi (1 canale).
   '''
   if immagine_PIL.mode == 'L': # grayscale
-      print("L'immagine è in scala di grigi.\n")
+      print("\tL'immagine è in scala di grigi.")
   elif immagine_PIL.mode == 'RGB':
-      print("L'immagine è a colori (RGB).\n")
+      print("\tL'immagine è a colori (RGB).")
   elif immagine_PIL.mode == 'RGBA':
-      print("L'immagine è a colori (RGBA).\n")
+      print("\tL'immagine è a colori (RGBA).")
   else:
-      print(f"La modalità dell'immagine è: {immagine_PIL.mode}\n")
+      print(f"\tLa modalità dell'immagine è: {immagine_PIL.mode}.")
 
 
 def analizza_immagine_PIL(immagine):
@@ -66,12 +65,12 @@ def analizza_immagine_PIL(immagine):
     Analisi dell'immagine con PIL.
     '''
 
-    print("\nAnalisi dell'immagine con PIL:\n")
+    print("\nAnalisi dell'immagine con PIL:")
 
     img = Image.open(immagine)
 
     # NB: img.size mi da rispettivamente la tupla: (width, height) in pixels
-    print(f"Dimensioni immagine: {img.size}\n")
+    print(f"\tDimensioni immagine: {img.size}.")
 
     # Quindi provo a mostrarla con matplotlib (perchè in teoria PIL non funziona qui su colab)
     plt.figure(figsize=(5, 5))
@@ -82,25 +81,26 @@ def analizza_immagine_PIL(immagine):
     # Chiamata a funzione di check grayscale o RGB
     controlla_modalita_colore(img)
 
+
 def analizza_immagine_CV2(immagine):
-    print("\nAnalisi dell'immagine con OpenCV:\n")
+    print("\nAnalisi dell'immagine con OpenCV:")
 
     # 1) La apro
     img_opencv = cv2.imread(immagine)
 
     # L'immagine è grayscale o a colori (RGB ad esempio)? lo dovrei vedere dalla shape
-    print(f'Dimensione array OpenCV: {img_opencv.shape}') # NB: (height, weigth)
+    print(f'\tDimensione array OpenCV: {img_opencv.shape}') # NB: (height, weigth)
     # Se shape è (h, w, 3) --> RGB/BGR
     # Se shape è (h, w) o (h, w, 1) --> Grayscale
     # Se shape è (h, w, 4) --> RGBA
 
     if len(img_opencv.shape) == 3:
         if img_opencv.shape[2] == 3:
-            print("L'immagine è a COLORI (BGR - 3 canali)")
+            print("\tL'immagine è a COLORI (BGR - 3 canali)")
         elif img_opencv.shape[2] == 4:
-            print("L'immagine è RGBA (4 canali)")
+            print("\tL'immagine è RGBA (4 canali)")
     else:
-        print("L'immagine è in GRAYSCALE (1 canale)")
+        print("\tL'immagine è in GRAYSCALE (1 canale)")
 
     # 2) Ne divido i canali
     canale_blu, canale_verde, canale_rosso = cv2.split(img_opencv)
@@ -171,8 +171,9 @@ def analizza_file_di_testo(annotazione, campione_random):
           # Colonne di un singolo file
           struttura_file.columns = ['Index', 'Area', 'Mean', 'Min', 'Max', 'X', 'Y']
 
-          print(f"\n{'#'*30}\nPrime 10 righe del dataframe del singolo file:\n{'#'*30}\n")
-          print( struttura_file.head(20) ) # stampo le prime 10 righe
+          n_righe = 20
+          print(f"\n{'#'*30}\nPrime {n_righe} righe del dataframe del singolo file:\n{'#'*30}\n")
+          print( struttura_file.head( n_righe ) ) # stampo le prime n righe
 
           print(f"\n{'#'*30}\nTipo di dato delle varie colonne:\n{'#'*30}\n")
           print(struttura_file.dtypes) # vedo il tipo di dato delle varie colonne che costituiscono il dataset
@@ -186,7 +187,7 @@ def analizza_file_di_testo(annotazione, campione_random):
       except Exception as e:
         print(f"Errore su file {campione_random}: {e}")
     else:
-        print(f"Il file {campione_random}.txt non esiste.")
+        print(f"{fail}Il file {campione_random}.txt non esiste.")
 
 
 
@@ -206,6 +207,9 @@ def main():
 
     ## Chiamata alle funzioni
     analizza_immagine(immagine, campione_random)
+
+    print(f"{'-' * 30}")
+
     analizza_file_di_testo(annotazione, campione_random)
 
 

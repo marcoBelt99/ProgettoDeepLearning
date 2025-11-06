@@ -2,6 +2,7 @@ import zipfile
 
 # Parametri da usare in giro per l'app
 from configs.parametri_app import *
+from utils.utils import ok, fail
 
 
 
@@ -18,16 +19,16 @@ def unzip_dataset() -> bool:
 
     # Verifico che la directory principale (che contiene sia lo zip che il dataset grezzo) esista
     if os.path.exists( DATA_DIR ):
-        print("Directory trovata: ", DATA_DIR)
-        print("Contenuto della directory:", os.listdir( DATA_DIR ))
+        print(f"{ok}Directory trovata: ", DATA_DIR)
+        print(f"{ok}Contenuto della directory:", os.listdir( DATA_DIR ))
 
         # Verifico che il file zip esista
         if os.path.exists( DATASET_ZIP ):
-            print("File zip del Dataset presente.")
+            print(f"{ok}File zip del Dataset presente.")
         else:
-            print("File zip del Dataset non trovato.")
+            print(f"{fail}File zip del Dataset non trovato.")
     else:
-        print("Directory non trovata:", DATA_DIR)
+        print(f"{fail}Directory non trovata:", DATA_DIR)
 
     # Estrazione del file: solo quando la cartella 'dataset' non e' gia' presente
     if 'dataset' not in os.listdir( DATA_DIR ):
@@ -35,7 +36,7 @@ def unzip_dataset() -> bool:
             zip_ref.extractall( DATA_DIR )
             estratto = True
     else:
-        print("\nLa cartella e' gia' stata estratta dallo zip\n")
+        print(f"\n{ok}La cartella e' gia' stata estratta dallo zip.")
 
     # Controllo del contenuto estratto
     # print(os.listdir( DATA_DIR ))
@@ -54,9 +55,9 @@ def main():
     dataset_estratto : bool = unzip_dataset()
 
     if dataset_estratto:
-        print("\nDataset estratto con successo.")
+        print(f"\n{ok}Dataset estratto con successo.")
     else:
-        print("\nDataset non estratto.")
+        print(f"\n{fail}Dataset non estratto.")
 
 
 

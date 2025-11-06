@@ -2,7 +2,7 @@
 from configs.parametri_app import *
 
 # Per usare funzioni di uso comune
-from utils.utils import get_num_files
+from utils.utils import get_num_files, ok, fail
 
 
 
@@ -12,6 +12,7 @@ def analizza_struttura_dataset() -> None:
     Effettua semplici cosiderazioni / verifiche numeriche sulla struttura della cartella contente
     i dati grezzi.
     '''
+
     print("\n(2) Analisi Strutturale del dataset:\n")
 
     NUM_TOTALE_FILES : int = len( FILES )  # conto gli elementi totali presenti dentro la cartella 'dataset'
@@ -38,7 +39,7 @@ def analizza_struttura_dataset() -> None:
     # tra immagine e file di testo ad essa associato.
     stessi_numeri: bool = all(n_txt == n_jpg for n_txt, n_jpg in zip(lista_numeri_files_txt, lista_numeri_files_jpg))
 
-    print("Le due liste sono in corrispondenza biunivoca (stessi numeri)" if stessi_numeri else "Ci sono numeri diversi")
+    print(f"{ok}Le due liste sono in corrispondenza biunivoca (stessi numeri)." if stessi_numeri else f"{fail}Ci sono numeri diversi.")
 
 def main():
 

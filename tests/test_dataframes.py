@@ -13,6 +13,6 @@ class TestDataframes:
 
     # Fai questo test solo se il file del dateset master è presente
     @pytest.mark.skipif(not DATAFRAME_MASTER.exists(), reason="File non trovato, salto il test")
-    def test_dataframe_master_shuold_have_expected_lenght(self):
+    def test_dataframe_master_should_has_expected_lenght(self):
         lunghezza_dataframe = pd.read_csv(DATAFRAME_MASTER).shape[0]
         assert lunghezza_dataframe == 1599

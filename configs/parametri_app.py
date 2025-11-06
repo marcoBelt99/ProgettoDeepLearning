@@ -34,3 +34,4 @@ DATAFRAME_MASTER = get_project_path(config['paths']['data']['dataframe_master'])
 # Percorsi ai dataframe specifici
 # ...
 
+num_totale_punti = 14

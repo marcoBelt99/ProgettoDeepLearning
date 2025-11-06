@@ -14,3 +14,6 @@ def get_num_files(estensione : str) -> int:
         estensione: può essere 'jpg' o 'txt'.
     '''
     return len(list(filter( lambda nome_file: (f"{estensione.lower()}" in nome_file), FILES )))
+
+ok = '[✓]'
+fail = '[x]'
