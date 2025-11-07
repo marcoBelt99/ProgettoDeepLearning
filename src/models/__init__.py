@@ -22,6 +22,6 @@ esegua i seguenti passi per ciascuno dei quattro gruppi:
 
     
 La cartella checkpoints/ è la libreria per i quattro modelli addestrati. Ad esempio, 
-poisso salvare i pesi come gruppo_1.pth, gruppo_2.pth, etc. per poterli caricare in seguito per il testing.
+posso salvare i pesi come gruppo_1.pth, gruppo_2.pth, etc. per poterli caricare in seguito per il testing.
 """
 

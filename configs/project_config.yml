@@ -8,5 +8,8 @@ paths:
     dataset_dir: "data/dataset" # cartella 'dataset' (compare quando viene estratto dataset_zip)
   src:
     root: "src"
-    models: "src/models"
+    models:
+      models: "src/models"
+      checkpoints: "src/models/checkpoints"
     utils: "src/utils"
+    testing: "src/testing"

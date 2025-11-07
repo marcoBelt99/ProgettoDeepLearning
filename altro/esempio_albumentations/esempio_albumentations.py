@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 from albumentations import Compose
 
-from src.data.p04_preparazione_dataframe import prepara_dataset_completo
+from data.preprocessing.pre04_preparazione_dataframe import prepara_dataframe_completo
 from configs.parametri_app import num_totale_punti
 
 
@@ -68,7 +68,7 @@ def main():
                                                ('X', 'Y')])  # +1 per comprendere anche il 14°-esimo punto nel range
 
     # (i dati si trovano nella current directory in questo caso)
-    dati = prepara_dataset_completo(os.getcwd(), os.listdir(os.getcwd()), dati)
+    dati = prepara_dataframe_completo(os.getcwd(), os.listdir(os.getcwd()), dati)
 
     print("\nDataframe completo per i due campioni:\n", dati)
 

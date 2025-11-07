@@ -1,13 +1,5 @@
 import torch
-from models.cnn_model_esempio import Net
-from utils.data_preparation import prepare_data_loaders
-from utils.visualization import im_show, plot_metrics
-import torchvision
-from training.train_validate import train_and_validate
-from testing.test_model import test_model
 
-
-import yaml
 from src.dataset import CustomKeypointDataset
 from src.model import KeypointModel
 from src.train import train_model

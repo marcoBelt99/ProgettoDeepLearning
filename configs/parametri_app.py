@@ -22,7 +22,7 @@ DATA_DIR = get_project_path(config['paths']['data']['root'])
 RAW_DATA_DIR = get_project_path(config['paths']['data']['raw'])
 DATASET_ZIP = get_project_path(config['paths']['data']['dataset_zip'])
 
-# Cartella 'dataset' dopo che è stata estratta
+# Cartella 'dataset' dopo che è stata estratta (contiene sia le immagini che i file di testo)
 DATASET_DIR = get_project_path(config['paths']['data']['dataset_dir'])
 
 # Lista di tutti i nomi dei files presenti dentro alla cartella in cui e' contenuto il dataset
@@ -34,4 +34,12 @@ DATAFRAME_MASTER = get_project_path(config['paths']['data']['dataframe_master'])
 # Percorsi ai dataframe specifici
 # ...
 
-num_totale_punti = 14
+
+## Path alla cartella models
+MODELS_DIR = get_project_path(config['paths']['src']['models']['models'])
+
+# Path alla cartella che memorizza i pesi dei vari modelli e dei vari gruppi
+CHECKPOINTS_DIR = get_project_path(config['paths']['src']['models']['checkpoints'])
+
+
+num_totale_punti : int = 14
