@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -8,11 +9,10 @@ from torchvision.models import ResNet
 
 from configs.parametri_app import DATAFRAME_MASTER, DATASET_DIR, CHECKPOINTS_DIR
 from src.data.dataset.repere_dataset import  crea_split_dataset
-import pandas as pd
+
 from utils.utils import ok, fail
 
-from timeit import default_timer as timer # timer per monitorare il tempo che impiego ad allenare
-# il modello
+from timeit import default_timer as timer # timer per monitorare il tempo che impiego ad allenare il modello
 
 ###################################
 ### PARAMETRI DI CONFIGURAZIONE ###
@@ -100,8 +100,10 @@ for epoch in range(EPOCHS):
 #######################################
 ####### SALVATAGGIO DEL MODELLO #######
 #######################################
-nome_modello : str = "resnet18_keypoints_all_points.pth"
+nome_modello : str = "resnet18_all_points.pth"
 
 torch.save(model.state_dict(), os.path.join(CHECKPOINTS_DIR, nome_modello) )
 print(f"{ok}Modello salvato come {nome_modello}")
+
+
 

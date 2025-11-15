@@ -7,8 +7,12 @@ percorso_relativo = "../documenti/file.txt"
 data_raw_dir = "../data/raw/"  # Dati grezzi (su archivio zip)
 dataset_dir = "../data/dataset"  # Dati unzippati dal dataset
 
-# Ottiene il percorso assoluto
+# Ottenere il percorso assoluto
 percorso_assoluto = os.path.abspath(percorso_relativo)
 
 print(f"Percorso relativo: {data_raw_dir}")
 print(f"Percorso assoluto: {data_raw_dir}")
+
+uno, due, tre = [3,4,1]
+
+print(uno, due, tre)

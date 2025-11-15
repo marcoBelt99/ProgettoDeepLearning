@@ -1,8 +1,10 @@
 """
 Modulo `src/data`
 
-- La cartella dataset che contiene le classi per i dataset custom.
-- La cartella preprocessing che effettua il preprocessamento dei dati.
-La classe CustomDataset e la logica di preparazione dei dati.
+Contiene:
+- la cartella 'preprocessing' che effettua il preprocessamento dei dati da dare in pasto ai modelli.
+- la cartella 'dataset' con le classi per i dataset custom. Una classe Dataset farà uso dei dati preparati
+  grazie ai files presenti in 'preprocessing'.
+
 """
 

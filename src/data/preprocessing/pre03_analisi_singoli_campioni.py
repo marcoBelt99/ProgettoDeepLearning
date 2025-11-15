@@ -50,14 +50,23 @@ def controlla_modalita_colore(immagine_PIL):
   Tramite PIL vado a controllare il numero di canali dell'immagine,
   per verificare se essa è a colori (3 canali) o in scala di grigi (1 canale).
   '''
-  if immagine_PIL.mode == 'L': # grayscale
-      print("\tL'immagine è in scala di grigi.")
-  elif immagine_PIL.mode == 'RGB':
-      print("\tL'immagine è a colori (RGB).")
-  elif immagine_PIL.mode == 'RGBA':
-      print("\tL'immagine è a colori (RGBA).")
-  else:
-      print(f"\tLa modalità dell'immagine è: {immagine_PIL.mode}.")
+  # if immagine_PIL.mode == 'L': # grayscale
+  #     print("\tL'immagine è in scala di grigi.")
+  # elif immagine_PIL.mode == 'RGB':
+  #     print("\tL'immagine è a colori (RGB).")
+  # elif immagine_PIL.mode == 'RGBA':
+  #     print("\tL'immagine è a colori (RGBA).")
+  # else:
+  #     print(f"\tLa modalità dell'immagine è: {immagine_PIL.mode}.")
+  match immagine_PIL.mode:
+      case 'L':  # grayscale
+          print("\tL'immagine è in scala di grigi.")
+      case 'RGB':
+          print("\tL'immagine è a colori (RGB).")
+      case 'RGBA':
+          print("\tL'immagine è a colori (RGBA).")
+      case _:  # default
+          print(f"\tLa modalità dell'immagine è: {immagine_PIL.mode}.")
 
 
 def analizza_immagine_PIL(immagine):
@@ -72,7 +81,7 @@ def analizza_immagine_PIL(immagine):
     # NB: img.size mi da rispettivamente la tupla: (width, height) in pixels
     print(f"\tDimensioni immagine: {img.size}.")
 
-    # Quindi provo a mostrarla con matplotlib (perchè in teoria PIL non funziona qui su colab)
+    # Quindi provo a mostrarla con matplotlib
     plt.figure(figsize=(5, 5))
     plt.imshow(img)
     plt.axis('off')  # Rimuove gli assi
@@ -171,9 +180,10 @@ def analizza_file_di_testo(annotazione, campione_random):
           # Colonne di un singolo file
           struttura_file.columns = ['Index', 'Area', 'Mean', 'Min', 'Max', 'X', 'Y']
 
+          # Numero di righe da analizzare
           n_righe = 20
           print(f"\n{'#'*30}\nPrime {n_righe} righe del dataframe del singolo file:\n{'#'*30}\n")
-          print( struttura_file.head( n_righe ) ) # stampo le prime n righe
+          print( struttura_file.head( n_righe ) ) # stampo le prime n_righe
 
           print(f"\n{'#'*30}\nTipo di dato delle varie colonne:\n{'#'*30}\n")
           print(struttura_file.dtypes) # vedo il tipo di dato delle varie colonne che costituiscono il dataset
@@ -192,7 +202,7 @@ def analizza_file_di_testo(annotazione, campione_random):
 
 
 def main():
-    num_file_jpg: int = get_num_files("jpg")
+    num_file_jpg : int = get_num_files("jpg")
 
     # Per visualizzare il singolo file e la singola immagine ad esso associata,
     # prendo un campione a caso
@@ -200,10 +210,10 @@ def main():
     # (Noto che per n=1237 non sono presenti nè l'img, nè il suo txt)
 
     ## Costruisco il path (dinamico), a seconda della singola immagine campione che prelevo dentro il DS
-    immagine = os.path.join(DATASET_DIR, str(campione_random) + '.jpg')
+    immagine : str = os.path.join(DATASET_DIR, str(campione_random) + '.jpg')
 
     # Do il nome del path per trovare il singolo file di testo dentro il DS
-    annotazione = os.path.join(DATASET_DIR, str(campione_random) + '.txt')
+    annotazione : str = os.path.join(DATASET_DIR, str(campione_random) + '.txt')
 
     ## Chiamata alle funzioni
     analizza_immagine(immagine, campione_random)

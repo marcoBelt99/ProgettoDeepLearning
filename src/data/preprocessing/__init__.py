@@ -1,5 +1,5 @@
 """
 Modulo `src/data/preprocessing``
 
-- La cartella preprocessing che effettua il preprocessamento dei dati.
+- Per effettuare il preprocessamento dei dati, prima di darli in pasto ai vari modelli.
 """

@@ -5,6 +5,10 @@ paths:
     raw: "data/raw"
     dataset_zip: "data/raw/dataset_14_punti_pulito_06072023.zip"
     dataframe_master: "data/dataframe_master.csv"
+    dataframe_gruppo_1: "data/dati_gruppo_1.csv"
+    dataframe_gruppo_2: "data/dati_gruppo_2.csv"
+    dataframe_gruppo_3: "data/dati_gruppo_3.csv"
+    dataframe_gruppo_4: "data/dati_gruppo_4.csv"
     dataset_dir: "data/dataset" # cartella 'dataset' (compare quando viene estratto dataset_zip)
   src:
     root: "src"

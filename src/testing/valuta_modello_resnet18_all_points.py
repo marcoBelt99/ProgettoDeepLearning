@@ -4,6 +4,8 @@ import cv2
 import numpy as np
 from torchvision import transforms
 import os
+from torchvision import models
+import torch.nn as nn
 
 from configs.parametri_app import DATAFRAME_MASTER, DATASET_DIR, CHECKPOINTS_DIR
 from src.data.dataset.repere_dataset import RepereKeypointsDataset
@@ -13,10 +15,14 @@ import pandas as pd
 # CONFIGURAZIONE
 # ==============================
 
-# dirname = os.path.dirname(__file__)
-MODEL_PATH = f"{CHECKPOINTS_DIR}/resnet18_keypoints.pth"
+
+MODEL_PATH = os.path.join(CHECKPOINTS_DIR, 'resnet18_all_points.pth')
+print("checkpoints dir: ", CHECKPOINTS_DIR)
+print("file .pth: ", MODEL_PATH)
+
 IMG_SIZE = 224
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
 
 # ==============================
 # CARICA DATASET E MODELLO
@@ -24,8 +30,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 df = pd.read_csv(DATAFRAME_MASTER)
 dataset = RepereKeypointsDataset(df, img_dir=DATASET_DIR, img_size=IMG_SIZE, augment=False)
 
-from torchvision import models
-import torch.nn as nn
+
 
 model = models.resnet18(weights='IMAGENET1K_V1')
 model.fc = nn.Linear(model.fc.in_features, 28)
@@ -34,6 +39,7 @@ model.fc = nn.Linear(model.fc.in_features, 28)
 model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
 model.to(DEVICE)
 model.eval()
+
 
 # ==============================
 # FUNZIONE DI VISUALIZZAZIONE

@@ -47,16 +47,16 @@ class RepereKeypointsDataset(Dataset):
         image = cv2.imread(img_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-        # Estrai le coordinate (in pixel)
+        # Estrazione coordinate (in pixel)
         coords = row[self.keypoint_cols].values.astype("float32") # provare il float64
-        keypoints = [(coords[i], coords[i + 1]) for i in range(0, len(coords), 2)]
+        keypoints = [ (coords[i], coords[i + 1] ) for i in range(0, len(coords), 2) ]
 
-        # Applica le trasformazioni
+        # Applico le trasformazioni
         transformed = self.transform(image=image, keypoints=keypoints)
         image = transformed["image"]
-        keypoints = np.array(transformed["keypoints"], dtype="float32")
+        keypoints = np.array(transformed["keypoints"], dtype="float32") # provare con il float64
 
-        # Normalizza le coordinate in [0,1] dopo il resize
+        # Normalizzo le coordinate in [0,1] (dopo il resize)
         keypoints[:, 0] /= self.img_size  # X
         keypoints[:, 1] /= self.img_size  # Y
 

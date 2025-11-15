@@ -9,8 +9,7 @@ from utils.utils import get_num_files, ok, fail
 
 def analizza_struttura_dataset() -> None:
     '''
-    Effettua semplici cosiderazioni / verifiche numeriche sulla struttura della cartella contente
-    i dati grezzi.
+    Effettua semplici cosiderazioni / verifiche numeriche sulla struttura della cartella contente i dati grezzi.
     '''
 
     print("\n(2) Analisi Strutturale del dataset:\n")
@@ -30,7 +29,7 @@ def analizza_struttura_dataset() -> None:
     lista_nomi_files_txt: list[str] = list(filter(lambda nome_file: (".txt" in nome_file), FILES))
     lista_nomi_files_jpg: list[str] = list(filter(lambda nome_file: (".jpg" in nome_file), FILES))
 
-    # Funzione anonima che mi recupera i singoli nomi
+    # Funzione anonima che mi recupera i singoli nomi (i prefissi)
     rimuovi_estensione = lambda nf: int(nf.split('.')[0])
 
     lista_numeri_files_txt: list[int] = sorted(list(map(rimuovi_estensione, lista_nomi_files_txt)))

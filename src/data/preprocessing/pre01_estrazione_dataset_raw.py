@@ -17,10 +17,12 @@ def unzip_dataset() -> bool:
 
     estratto : bool = False
 
-    # Verifico che la directory principale (che contiene sia lo zip che il dataset grezzo) esista
+    # Verifico che la directory principale (che contiene sia lo zip che il dataset grezzo) esista,
+    # e ne stampo il contenuto.
+    lista_files_data_dir : list[str] = os.listdir( DATA_DIR )
     if os.path.exists( DATA_DIR ):
         print(f"{ok}Directory trovata: ", DATA_DIR)
-        print(f"{ok}Contenuto della directory:", os.listdir( DATA_DIR ))
+        print(f"{ok}Contenuto della directory:", lista_files_data_dir)
 
         # Verifico che il file zip esista
         if os.path.exists( DATASET_ZIP ):
@@ -31,7 +33,8 @@ def unzip_dataset() -> bool:
         print(f"{fail}Directory non trovata:", DATA_DIR)
 
     # Estrazione del file: solo quando la cartella 'dataset' non e' gia' presente
-    if 'dataset' not in os.listdir( DATA_DIR ):
+    # estraggo dentro la cartella DATA_DIR
+    if 'dataset' not in lista_files_data_dir:
         with zipfile.ZipFile( DATASET_ZIP, 'r' ) as zip_ref:
             zip_ref.extractall( DATA_DIR )
             estratto = True
