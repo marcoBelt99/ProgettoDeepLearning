@@ -46,3 +46,7 @@ Ogni file di testo è strutturato nel seguente modo:
 
 Inserire lo zip del dataset dentro `/data/raw`.
 
+### Avvio di Tensorboard
+
+>  tensorboard --logdir=src/models/resnet18/logs --port=6006
+

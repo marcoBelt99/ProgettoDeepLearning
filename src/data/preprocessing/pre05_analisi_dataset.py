@@ -1,10 +1,12 @@
 import pandas as pd
+import numpy as np
 import os
 import matplotlib.pyplot as plt
 import random
 import cv2
 
-from configs.parametri_app import DATAFRAME_MASTER, DATASET_DIR, num_totale_punti
+
+from configs.parametri_app import DATAFRAME_MASTER, DATASET_DIR, num_totale_punti, FILES
 from utils.utils import fail, ok
 
 
@@ -82,7 +84,70 @@ def mostra_punti_annotati_random(df, etichette_punti , path_base=DATASET_DIR, n_
     plt.tight_layout()
     plt.show()
 
-# passo alla prossima immagine
+
+
+def check_missing_values():
+    missing_stats = []
+
+    lista_nomi_files_txt : list[str] = sorted([t for t in FILES if t.endswith(".txt")], key=lambda nf: int(nf.split('.')[0]))
+
+    for txt_file in lista_nomi_files_txt:
+        file_path = os.path.join(DATASET_DIR, txt_file)
+        if not os.path.exists(file_path):
+            print(f"File non trovato: {file_path}")
+            continue
+
+        # Leggo il CSV
+        df: pd.DataFrame = pd.read_csv(f"{DATASET_DIR}/{txt_file}", delimiter=',',
+                                           header=0)  # prima colonna è quella delle intestazioni
+
+        # Prendo solo le colonne X e Y
+        coords = df[['X', 'Y']]
+
+        # Controllo valori anomali
+        invalid = (coords == 0).any(axis=1) | coords.isna().any(axis=1)
+        missing_stats.append({
+            'file': txt_file,
+            'punti_totali': len(coords),
+            'punti_invalidi': invalid.sum()
+        })
+
+    return pd.DataFrame(missing_stats)
+
+
+
+
+def dimensioni_medie_immagini(df : pd.DataFrame, path_base=DATASET_DIR) -> tuple[float, float]:
+    """
+    Restituisce rispettivamente (larghezza, altezza) medie del dataset (in formato dataframe) passato
+    come argomento.
+
+    Args:
+        df: dataframe del dataset su cui operare.
+    Returns:
+        (larghezza media, altezza media)
+    """
+    larghezze = []
+    altezze = []
+
+    for _, row in df.iterrows():
+        img_path = f"{path_base}/{row['path_img']}"
+        img = cv2.imread(img_path)
+
+        if img is None:
+            print(f"Immagine non trovata: {img_path}")
+            continue
+
+        h, w = img.shape[:2]  # più compatto di: height, width = img.shape[0], img.shape[1]
+
+        larghezze.append(w)
+        altezze.append(h)
+
+    if not larghezze or not altezze:
+        raise ValueError("Nessuna immagine valida trovata.")
+
+    return np.mean(larghezze), np.mean(altezze)
+
 
 
 
@@ -95,11 +160,11 @@ def main():
         dati : pd.DataFrame = pd.read_csv(DATAFRAME_MASTER)
 
         ## Visualizzo le prime 4 righe
-        print("\nPrime 4 righe:")
+        print("\nPrime 4 righe del dataframe master:")
         print( dati.head(4) )
 
         ## Visualizzo le ultime 4 righe
-        print("\nUltime 4 righe:")
+        print("\nUltime 4 righe del dataframe master:")
         print( dati.tail(4) )
 
         ## Verifico se ci sono dei valori mancanti o anomali
@@ -144,7 +209,26 @@ def main():
         print(f"{fail}Dataframe in csv non trovato.")
 
 
-if __name__ == "__main__":
 
+    ## Verifico se esistono valori mancanti o problematici
+    #  settando a True la seguente variabile
+    check_valori_mancanti = False
+
+    if check_valori_mancanti:
+
+        df_valori_mancanti = check_missing_values()
+        print( "Dataframe valori mancanti:\n", df_valori_mancanti )
+        print( "Numero valori mancanti: ", df_valori_mancanti['punti_invalidi'].sum() )
+
+    '''
+    Noto che non ne ho da nessuna parte di valori mancanti. Ottimo segno.
+    '''
+
+    larghezza_media, altezza_media = dimensioni_medie_immagini(dati)
+
+    print(f"\nLarghezza media: {larghezza_media}\t|Altezza media: {altezza_media}\n")
+
+
+if __name__ == "__main__":
 
     main()

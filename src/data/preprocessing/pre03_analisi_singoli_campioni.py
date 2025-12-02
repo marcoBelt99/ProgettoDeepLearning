@@ -50,14 +50,6 @@ def controlla_modalita_colore(immagine_PIL):
   Tramite PIL vado a controllare il numero di canali dell'immagine,
   per verificare se essa è a colori (3 canali) o in scala di grigi (1 canale).
   '''
-  # if immagine_PIL.mode == 'L': # grayscale
-  #     print("\tL'immagine è in scala di grigi.")
-  # elif immagine_PIL.mode == 'RGB':
-  #     print("\tL'immagine è a colori (RGB).")
-  # elif immagine_PIL.mode == 'RGBA':
-  #     print("\tL'immagine è a colori (RGBA).")
-  # else:
-  #     print(f"\tLa modalità dell'immagine è: {immagine_PIL.mode}.")
   match immagine_PIL.mode:
       case 'L':  # grayscale
           print("\tL'immagine è in scala di grigi.")
@@ -206,9 +198,9 @@ def main():
 
     # Per visualizzare il singolo file e la singola immagine ad esso associata,
     # prendo un campione a caso
-    campione_random = random.randint(1, num_file_jpg)
+    # campione_random = random.randint(1, num_file_jpg)
     # (Noto che per n=1237 non sono presenti nè l'img, nè il suo txt)
-
+    campione_random : int = 1596
     ## Costruisco il path (dinamico), a seconda della singola immagine campione che prelevo dentro il DS
     immagine : str = os.path.join(DATASET_DIR, str(campione_random) + '.jpg')
 

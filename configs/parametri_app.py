@@ -79,7 +79,7 @@ num_totale_punti : int = 14
  Ogni modello avrà un numero di output pari a len( GRUPPO )*2
  Mi conviene salvarmi / isolarmi i punti in diversi "sotto-dataframe", ognuno associato allo specifico modello
  Credo che questo sia importante anche per poter avere una maggior granularità verso lo specifico gruppo di punti.
- Infatti, se per caso trovo difficoltà per un
+ Infatti, se per caso trovo difficoltà per un ...
 '''
 RAGGRUPPAMENTI = {
     "GRUPPO1": [0, 1, 4, 5],    # S, N, A, B

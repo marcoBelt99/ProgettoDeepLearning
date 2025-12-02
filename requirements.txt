@@ -26,3 +26,7 @@ pytest # per fare qualche test unitario
 
 albumentations # per fare data augmentation e aumentare sia le immagini che i corrispondenti keypoints
 # in maniera automatica e relativamente semplice
+
+torchsummary # per vedere in modo ordinato e tabulare per plottare l'architettura della rete neurale
+
+tensorboard # per vedere meglio le cose

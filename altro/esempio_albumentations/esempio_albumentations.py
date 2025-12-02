@@ -6,7 +6,8 @@ import pandas as pd
 import numpy as np
 from albumentations import Compose
 
-from data.preprocessing.pre04_preparazione_dataframe import prepara_dataframe_completo
+from src.data.preprocessing.pre04_preparazione_dataframe import prepara_dataframe_completo
+# from data.preprocessing.pre04_preparazione_dataframe import prepara_dataframe_completo
 from configs.parametri_app import num_totale_punti
 
 

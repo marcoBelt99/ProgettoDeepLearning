@@ -1,12 +1,14 @@
 import pandas as pd
+from sklearn.utils import deprecated
 
 # Parametri da usare in giro per l'app
 from configs.parametri_app import *
+from models.resnet18.parametri_modello import NUM_TOTALE_PUNTI
 from utils.utils import get_num_files, ok, fail
 
 
 def prepara_dataframe_completo(DIR_ANNOTAZIONI, LISTA_FILES,
-                               dati: pd.DataFrame) -> pd.DataFrame:
+                               dati : pd.DataFrame) -> pd.DataFrame:
     '''
     Si occupa di riempire il DataFrame con i soli dati di interesse.
 
@@ -60,11 +62,11 @@ def prepara_dataframe_completo(DIR_ANNOTAZIONI, LISTA_FILES,
     return dati
 
 
-
-## Creo diversi DF ognuno correlato ad uno specifico gruppo di punti
+# TODO: deprecato
+# Creo diversi DF ognuno correlato ad uno specifico gruppo di punti
 def crea_sottodataframe_per_gruppo(dati_completi, nome_gruppo) -> pd.DataFrame:
     """
-    Crea sotto-dataframe per il raggruppamento specificato.
+
 
     Args:
       dati_completi: dataframe "master" di partenza, completo di tutti i punti.
@@ -86,20 +88,36 @@ def crea_sottodataframe_per_gruppo(dati_completi, nome_gruppo) -> pd.DataFrame:
 
     return dataframe_gruppo
 
+# TODO: deprecato
+def prepara_dataframe_gruppo(df_completo : pd.DataFrame, nome_gruppo: str) -> pd.DataFrame:
+    '''
+    Crea sotto-dataframe per il raggruppamento specificato.
+    Questa procedura funziona per tutti i gruppi di punti. Infatti, basta che passo la chiave del gruppo di punti
+    di cui voglio creare il dataframe.
 
-def prepara_dataframe_gruppo(df_completo: pd.DataFrame, nome_gruppo: str) -> pd.DataFrame:
+
+    Args:
+        df_completo:  dataframe di partenza, da cui tenere le sole colonne di interesse per il gruppo di punti.
+        nome_gruppo: chiave del nome del gruppo di punti di cui si vuol creare il dataframe
+
+    '''
+
     # Per poter creare il sotto-dataframe specifico per quel gruppo di punti, non ha senso che
     # il dataframe master sia vuoto
     try:
-        if not df_completo.empty:
-            punti = RAGGRUPPAMENTI[nome_gruppo]
-            colonne = ['path_img'] + [coord for i in punti for coord in (f'punto_{i + 1}_X', f'punto_{i + 1}_Y')]
+        # if not df_completo.empty:
+        if os.path.exists(DATAFRAME_MASTER):
+            # Mi serve leggere il csv per poter passare i dati ai sottodataframe
+            df_completo = pd.read_csv(DATAFRAME_MASTER)
+            punti : list[int] = RAGGRUPPAMENTI[nome_gruppo]
+            colonne : list[str] = ['path_img'] + [coord for i in punti for coord in (f'punto_{i + 1}_X', f'punto_{i + 1}_Y')]
             print(f"{ok} Dataframe per il gruppo {nome_gruppo} creato correttamente. ")
 
-            # Ritorno il dataframe filtrato, con le sole colonne di interesse
+            ## Ritorno il dataframe filtrato, con le sole colonne di interesse
             return df_completo[colonne]
         else:
-            raise ValueError(f"\n{fail}Il Dataframe master non puo' essere vuoto, altrimenti non ha senso filtrare il dataframe dello specifico gruppo.")
+            # raise ValueError(f"\n{fail}Il Dataframe master non puo' essere vuoto, altrimenti non ha senso filtrare il dataframe dello specifico gruppo.")
+            raise ValueError(f"\n{fail}Il Dataframe master deve esistere, altrimenti non ha senso filtrare il dataframe dello specifico gruppo.")
     except Exception as e:
         print(f"Errore durante la preparazione del DataFrame per {nome_gruppo}: {e}")
         return None
@@ -108,13 +126,12 @@ def prepara_dataframe_gruppo(df_completo: pd.DataFrame, nome_gruppo: str) -> pd.
 
 def main():
 
-    ######################################################
-    ### PREPARAZIONE DATAFRAME COMPLETO (MASTER ##########
-    ######################################################
+    #######################################################
+    ### PREPARAZIONE DATAFRAME COMPLETO (MASTER) ##########
+    #######################################################
     #### Definisco un nuovo DataFrame
-    num_punti : int = 14
     dati : pd.DataFrame = pd.DataFrame(columns=['path_img'] +
-                                               [f'punto_{n}_{coord}' for n in range(1, num_punti + 1) for coord in
+                                               [f'punto_{n}_{coord}' for n in range(1, NUM_TOTALE_PUNTI + 1) for coord in
                                                ('X', 'Y')])  # il +1 è per comprendere anche il 14°-esimo punto nel range
 
     # Ottengo il numero totale di immagini presenti dentro al cartella FILES
@@ -141,7 +158,7 @@ def main():
 
 
     ######################################################
-    ######## PREPARAZIONE DATAFRAMEs PARZIALI ############
+    ######## TODO: depracato -> PREPARAZIONE DATAFRAMEs PARZIALI ############
     ######################################################
 
     dict_dataframe_parziali : dict[str, pd.DataFrame] = {}
@@ -160,7 +177,7 @@ def main():
     # lista_dati_raggruppamenti: list[pd.DataFrame] = [dati_gruppo_1, dati_gruppo_2, dati_gruppo_3, dati_gruppo_4]
     lista_dati_raggruppamenti : list[pd.DataFrame] = list( dict_dataframe_parziali.values() )
 
-    ## Lista di bool come "sentinella" per vedere se tutti sono stati creati tutti i gruppi
+    ## Lista di bool come "sentinella" per vedere se sono stati creati tutti i gruppi
     lista_files_dati_gruppi_creati : list[bool] = [os.path.exists(os.path.join(DATA_DIR,  f'dati_gruppo_{i}.csv')) for i in
                                                   range(1, len(lista_dati_raggruppamenti) + 1)]
 
