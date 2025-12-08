@@ -65,6 +65,9 @@ MODELS_DIR = get_project_path(config['paths']['src']['models']['models'])
 #  Cartella:   'src/models/checkpoints' (memorizza i pesi dei vari modelli di RN).
 CHECKPOINTS_DIR = get_project_path(config['paths']['src']['models']['checkpoints'])
 
+#  Cartella: 'src/testing'
+TESTING_DIR = get_project_path(config['paths']['src']['testing'])
+
 
 ########################################################
 ################### ALTRI PARAMETRI ####################

@@ -8,6 +8,9 @@ class ResNet18_Keypoints(nn.Module):
     '''
     Questa classe serve da proxy come contenitore di pesi tra la parte di training
     e nella parte di inferenza (validazione), e nella parte di visualizzazione.
+
+    ## Per fare TL uso il modello che ho definito io, come istanza della classe che estende nn.Module
+    #  NUM_TOTALE_PUNTI * 2 perchè ho 2 coordinate per punto
     '''
     def __init__(self, num_outputs=28, pretrained=True):
         '''
@@ -58,8 +61,3 @@ class ResNet18_Keypoints(nn.Module):
     # TODO: pensare di sostituirlo con il metodo __call__()
     def forward(self, x):
         return self.backbone(x)
-
-
-
-
-

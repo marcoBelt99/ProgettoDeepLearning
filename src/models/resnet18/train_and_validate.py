@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
+import matplotlib.pyplot as plt
 
 from typing import Callable, Dict, List, Tuple, Union
 
@@ -31,9 +32,11 @@ def calcola_mae_pixel(predictions, targets, img_size):
 
     return torch.abs(pred_pixels - target_pixels) .mean(dim=1).mean().item() # nuovo
 
-def mean_euclidean_distance(preds, targets, img_size):
-    preds = preds.view(-1, 14, 2) * img_size # moltiplicando per img_size vado a denormalizzare, passando da valori in [0,1] ai veri valori assunti dai pixel
-    targets = targets.view(-1, 14, 2) * img_size
+def mean_euclidean_distance(preds, targets, img_size, num_outputs_modello):
+    # preds = preds.view(-1, 14, 2) * img_size # moltiplicando per img_size vado a denormalizzare, passando da valori in [0,1] ai veri valori assunti dai pixel
+    preds = preds.view(-1, num_outputs_modello, 2) * img_size # moltiplicando per img_size vado a denormalizzare, passando da valori in [0,1] ai veri valori assunti dai pixel
+    # targets = targets.view(-1, 14, 2) * img_size
+    targets = targets.view(-1, num_outputs_modello, 2) * img_size
     dists = torch.norm(preds - targets, dim=2)
     return dists.mean().item()
 
@@ -111,7 +114,9 @@ def train( writer : SummaryWriter,
 def validate(model : nn.Module,
              data_loader : DataLoader,
              device : torch.device,
-             criterion : Callable[[torch.Tensor, torch.Tensor], float]) -> Tuple[float, float, float]:
+             criterion : Callable[[torch.Tensor, torch.Tensor], float],
+             num_outputs_modello : int
+             ) -> Tuple[float, float, float]:
     """
      Valuta il modello.
 
@@ -146,7 +151,7 @@ def validate(model : nn.Module,
             samples_val += len(images)
 
             mae_val += calcola_mae_pixel(outputs, keypoints, IMG_SIZE) * images.size(0)
-            med_val += mean_euclidean_distance(outputs, keypoints, IMG_SIZE) * images.size(0)
+            med_val += mean_euclidean_distance(outputs, keypoints, IMG_SIZE, num_outputs_modello) * images.size(0)
 
     loss_val /= samples_val
     mae_val /= samples_val
@@ -156,12 +161,25 @@ def validate(model : nn.Module,
 
 
 
+def plotta_loss(train_losses, val_losses):
+    """
+    Plotta il grafico delle due loss a confronto.
+    """
+    plt.plot(train_losses, label="train loss")
+    plt.plot(val_losses, label="validation loss")
+    plt.xlabel("epoch")
+    plt.ylabel("loss")
+    plt.legend()
+
+
+
 def training_loop(  writer : SummaryWriter, # writer di tensorboard
                     num_epochs : int,
                     optimizer : optim,
                     lr_scheduler : lr_scheduler,
                     log_interval : int,
                     model : nn.Module,
+                    num_outputs_modello : int,
                     loader_train : DataLoader,
                     loader_val : DataLoader,
                     verbose : bool=True) -> Dict:
@@ -184,6 +202,7 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
 
     ## Inizializzo delle liste per salvare, ad ogni epoca le mie loss e le distanze (mae, med) sul training set e sul validation set
     losses_values = []
+    val_losses = [] # mi serve solo per stamparla con matplotlib
     # train_mae_values = [] # TODO: ha senso salvarmi anche per il testing le metriche come MAD e MAE ?
     # train_med_values = []
     val_mae_values = []
@@ -201,19 +220,23 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
         loss_train = train(writer, model, loader_train, DEVICE, optimizer, criterion, log_interval, epoch)
 
         ## Appena finisce il train, chiamo la validate
-        loss_val, mae_val, med_val = validate(model, loader_val, DEVICE, criterion)
+        loss_val, mae_val, med_val = validate(model, loader_val, DEVICE, criterion, num_outputs_modello)
 
         time_end = timer()
 
         # Salvo tutte le loss e le metriche di distanza
         losses_values.append(loss_train)
+        val_losses.append(loss_val) # solo a scopo di usarla con matplotlib
         val_mae_values.append(mae_val)
         val_med_values.append(med_val)
 
         if mae_val < best_mae:
             best_mae = mae_val
             # Salvataggio del modello
-            torch.save( model.state_dict(), os.path.join(CHECKPOINTS_DIR, "best_resnet18.pth.pth") )
+            #torch.save( model.state_dict(), os.path.join(CHECKPOINTS_DIR, "best_resnet18.pth.pth") )
+            save_path = os.path.join(CHECKPOINTS_DIR, f"{writer.log_dir.split(os.sep)[-1]}_best.pth")
+            torch.save(model.state_dict(), save_path)
+            print(f"🟢 Salvato miglior modello: {save_path}")
 
         ## Se uso un l.r. scheduler, allora:
         #     se voglio mostrare il l.r. nel mio plots in tensorboard o a console,
@@ -248,6 +271,9 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
         if verbose:
             print(f'Tempo per {num_epochs} epoche (s): {(time_loop):.3f}')
 
+    plotta_loss(losses_values, val_losses)
+    plt.show()
+
     # Ritorno un dizionario con le metriche
     return {'loss_values': losses_values,
             'val_mae_values': val_mae_values,
@@ -262,7 +288,9 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
 def execute(name_train: str,
             network : nn.Module,
             starting_lr : float,
+            optimizer,
             num_epochs: int,
+            num_outputs_modello: int,
             data_loader_train : DataLoader,
             data_loader_val : DataLoader) -> None:
 
@@ -286,9 +314,14 @@ def execute(name_train: str,
 
     # Ottimizzazione da passare alla rete.
     # optimizer = optim.SGD(network.parameters(), lr=starting_lr, momentum=0.9, weight_decay=0.0001)
-    # TODO: con Adam sto ottenendo buoni risultati e migliori rispetto a SGD
-    optimizer = optim.Adam(network.parameters(), lr=starting_lr)
 
+    # TODO: con Adam sto ottenendo buoni risultati e migliori rispetto a SGD
+
+    # optimizer = torch.optim.Adam([
+    #     {"params": network.layer3.parameters(), "lr": 5e-5},
+    #     {"params": network.layer4.parameters(), "lr": 1e-4},
+    #     {"params": network.fc.parameters(), "lr": 1e-3},
+    # ])
 
     ## Learning Rate schedule: decade il learning rate di un fattore `gamma` ogni `step_size` epoche.
     #scheduler = lr_scheduler.StepLR(optimizer, step_size=5,
@@ -297,7 +330,7 @@ def execute(name_train: str,
     scheduler = None # lascindolo a None dovrei ottenere lo stesso effetto senza scheduler. Se uso Adam, lui già di suo lo implementa
 
     # Richiamo il loop di training, e salvo le statistiche (il dizionario che mi viene ritornato)
-    statistics = training_loop(writer, num_epochs, optimizer, scheduler, log_interval, network, data_loader_train,
+    statistics = training_loop(writer, num_epochs, optimizer, scheduler, log_interval, network, num_outputs_modello , data_loader_train,
                                data_loader_val)
 
     # Quando finisce, chiudo il writer
