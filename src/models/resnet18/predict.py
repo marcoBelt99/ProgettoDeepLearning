@@ -7,16 +7,21 @@ import cv2
 from factory import build_resnet18
 from models.resnet18.trasformazioni import resnet18_data_transforms
 from parametri_modello import *
-from configs.parametri_app import CHECKPOINTS_DIR, DATASET_DIR, TESTING_DIR
+from configs.parametri_app import CHECKPOINTS_DIR, DATASET_DIR, TESTING_DIR, RAGGRUPPAMENTI
 
 ## 1) CARICO IL MODELLO ADDRESTRATO
 
-MODEL_PATH = os.path.join(CHECKPOINTS_DIR, "layer3_4_fc_best.pth")
+# MODELLO CHE PREDICE TUTTI I PUNTI
+# MODEL_PATH = os.path.join(CHECKPOINTS_DIR, "layer3_4_fc_best.pth")
+
+MODEL_PATH = os.path.join(CHECKPOINTS_DIR, "GRUPPO1_resnet18_best.pth")
+
 print("Carico modello da:", MODEL_PATH)
 
 def carica_modello(model_path):
     model = build_resnet18(
-        num_outputs=NUM_TOTALE_PUNTI * 2,
+        # num_outputs=NUM_TOTALE_PUNTI * 2, # per modello che predice tutti i punti
+        num_outputs= len( RAGGRUPPAMENTI["GRUPPO1"] )*2,
         pretrained=True,
         head="linear",
         freeze_until="layer3"
@@ -34,8 +39,6 @@ model = carica_modello(MODEL_PATH)
 
 
 # 2) FUNZIONE PER PREDIRE I KEYPOINTS SU UNA SINGOLA IMMAGINE
-
-
 def predict_keypoints(img_path, model):
     """
     Predice i keypoints per un’immagine esterna o del dataset.
@@ -48,7 +51,7 @@ def predict_keypoints(img_path, model):
     img = cv2.imread(img_path)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-    original_img = img.copy()  # per visualizzazione
+    #original_img = img.copy()  # per visualizzazione
 
     ## Applica trasformazioni del test set
     transform = resnet18_data_transforms["test"]
@@ -97,7 +100,7 @@ def show_prediction(img_path):
 if __name__ == "__main__":
 
     # metti qui una immagine qualsiasi del dataset o esterna
-    esempio_from_dataset = os.path.join(DATASET_DIR, "5.jpg")  # <-- SOSTITUISCI CON IL TUO FILE
+    esempio_from_dataset = os.path.join(DATASET_DIR, "5.jpg")
     show_prediction(esempio_from_dataset)
 
     # Quest'immagine l'ho presa online da un dataset su Kaggle

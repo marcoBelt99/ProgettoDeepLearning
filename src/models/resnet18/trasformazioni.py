@@ -46,12 +46,59 @@ resnet18_data_transforms = {
                 ),
                 # FIXME: sto avendo problemi con A.GaussNoise:
                 # 'var_limit' are not valid for transform GaussNoise
-                A.GaussNoise(var_limit=(5.0, 15.0), p=0.2), # quello di prima
+
+                #A.GaussNoise(var_limit=(5.0, 15.0), p=0.2), # quello di prima
+                # A.GaussNoise(sigma_limit=(5, 15), mean=0, p=0.2),
+                # A.GaussNoise(noise_scale=(5, 15), p=0.2),
+                A.GaussNoise(
+                    std_range=(5/255, 15/255),    # valori consigliati: devono essere in [0,1] perché l’immagine è normalizzata
+                    mean_range=(0.0, 0.0),
+                    noise_scale_factor=1.0,
+                    p=0.2
+                ),
+
+
+
                 # A.GaussNoise(std_range=(5.0, 15.0), p=0.2), # nuova modifica, però da errore
                 # TODO: Per GaussNoise, visto che ha cambiato API, la versione corretta dovrebbe essere:
                 # A.GaussNoise(var_limit=(5, 30), mean=0, p=0.2)
                 A.CLAHE(clip_limit=2.0, p=0.2),
                 A.GaussianBlur(blur_limit=3, p=0.1),
+
+
+
+                #####################################
+                # Trasformazioni aggiuntive:
+                # tecnicamente non dovrebbero andare a modificare
+                # la forma del viso → sono sicure per i keypoints.
+                #####################################
+                A.HorizontalFlip(p=0.5),
+
+                # A.RandomResizedCrop(
+                #     size=(IMG_SIZE, IMG_SIZE),
+                #     scale=(0.85, 1.0),
+                #     ratio=(0.95, 1.05),
+                #     p=0.4
+                # ),
+
+                # A.GridDistortion(
+                #     num_steps=5,
+                #     distort_limit=0.03,
+                #     p=0.3
+                # ),
+
+                A.CoarseDropout(
+                    num_holes_range=(1, 3),
+                    hole_height_range=(0.05, 0.10),
+                    hole_width_range=(0.05, 0.10),
+                    fill=0,
+                    p=0.25
+                ),
+
+
+                #############################################
+                ### Normalizzazione e tensorizzazione #######
+                #############################################
 
                 normalizzazione, # va sempre prima della tensorizzazione
                 ToTensorV2()

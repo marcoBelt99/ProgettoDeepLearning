@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-import torch
+
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
@@ -17,28 +17,14 @@ from torch.optim import lr_scheduler
 from parametri_modello import IMG_SIZE, DEVICE
 
 from configs.parametri_app import CHECKPOINTS_DIR
+from utils.early_stopping import EarlyStopping
 
+from utils.logger import log_experiment
+from utils.metriche import *
 
 from timeit import default_timer as timer # timer per monitorare il tempo che impiego ad allenare il modello
 
 
-
-def calcola_mae_pixel(predictions, targets, img_size):
-    """
-    Calcola il MAE come metrica per i pixel
-    """
-    pred_pixels = predictions * img_size # moltiplicando per img_size vado a denormalizzare e passo da valori in [0,1] a valori in [0, 255]
-    target_pixels = targets * img_size #   moltiplicando per img_size vado a denormalizzare e passo da valori in [0,1] a valori in [0, 255]
-
-    return torch.abs(pred_pixels - target_pixels) .mean(dim=1).mean().item() # nuovo
-
-def mean_euclidean_distance(preds, targets, img_size, num_outputs_modello):
-    # preds = preds.view(-1, 14, 2) * img_size # moltiplicando per img_size vado a denormalizzare, passando da valori in [0,1] ai veri valori assunti dai pixel
-    preds = preds.view(-1, num_outputs_modello, 2) * img_size # moltiplicando per img_size vado a denormalizzare, passando da valori in [0,1] ai veri valori assunti dai pixel
-    # targets = targets.view(-1, 14, 2) * img_size
-    targets = targets.view(-1, num_outputs_modello, 2) * img_size
-    dists = torch.norm(preds - targets, dim=2)
-    return dists.mean().item()
 
 
 
@@ -212,6 +198,13 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
     #  quello avente metriche migliori
     best_mae = float('inf')  # Inizializzo con infinito
 
+    # Provo ad implementare early stopping
+    early_stopper = EarlyStopping(
+        patience=10,
+        min_delta=1e-4,
+        checkpoint_path=os.path.join(CHECKPOINTS_DIR, f"{writer.log_dir.split(os.sep)[-1]}_BEST_EARLY.pth")
+    )
+
     for epoch in range(1, num_epochs + 1):  # potevo fare anche in range(0, num_epochs), ma io ho shiftato il default, per farlo funzionare con tensorboard
         time_start = timer()  # chissenefrega..
 
@@ -223,6 +216,11 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
         loss_val, mae_val, med_val = validate(model, loader_val, DEVICE, criterion, num_outputs_modello)
 
         time_end = timer()
+
+        early_stopper(mae_val, model)
+        if early_stopper.early_stop:
+            print("Early stopping impostato")
+            break
 
         # Salvo tutte le loss e le metriche di distanza
         losses_values.append(loss_train)
@@ -261,9 +259,15 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
         # writer.add_scalars('Metriche/Accuratezza', {"Train": accuracy_train, "Val": accuracy_val}, epoch)
         writer.flush()  # flusho, così la prossima volta posso scrivere un nuovo valore
 
-        # Ogni volta in questa epoca incremento lo step
+        # Ogni volta in questa epoca incremento lo step.
+        # Lo scheduler viene ovviamente passato dal metodo execute()
         if lr_scheduler:
-            lr_scheduler.step()
+            # lr_scheduler.step()
+            lr_scheduler.step(mae_val)
+            # ReduceLROnPlateau richiede un valore di metrica (nel mio caso MAE di validazione) per capire
+            # quando ridurre il learning rate.
+            # Il valore si ottiene solo dopo la validazione, non durante il training batch-per-batch.
+            # Il learning rate va aggiornato a fine epoca, non ad ogni batch.
 
         loop_end = timer()
         time_loop = loop_end - loop_start
@@ -286,7 +290,7 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
 
 
 def execute(name_train: str,
-            network : nn.Module,
+            rete : nn.Module,
             starting_lr : float,
             optimizer,
             num_epochs: int,
@@ -299,7 +303,7 @@ def execute(name_train: str,
 
     Args:
         name_train: il nome per la subfolder di log.
-        network: la rete da allenare.
+        rete: la rete da allenare.
         starting_lr: il learning rate di partenza.
         num_epochs: il numero di epoche.
         data_loader_train: il data loader con i dati di training.
@@ -327,10 +331,20 @@ def execute(name_train: str,
     #scheduler = lr_scheduler.StepLR(optimizer, step_size=5,
     #                                gamma=0.1)  # quindi, qui sto usando uno StepLR in cui cambio il lr moltiplicandolo per 0.1 ogni 5 epoche
 
-    scheduler = None # lascindolo a None dovrei ottenere lo stesso effetto senza scheduler. Se uso Adam, lui già di suo lo implementa
+    # PRIMA: scheduler=None
+    # scheduler = None # lasciandolo a None dovrei ottenere lo stesso effetto senza scheduler. Se uso Adam, lui già di suo lo implementa
+
+    # ADESSO: provo con lo scheduler
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer,
+        mode='min',
+        factor=0.5, # dimezza il LR
+        patience=3, # aspetta 3 epoche senza miglioramenti
+        # verbose=True # unexpected argument
+    )
 
     # Richiamo il loop di training, e salvo le statistiche (il dizionario che mi viene ritornato)
-    statistics = training_loop(writer, num_epochs, optimizer, scheduler, log_interval, network, num_outputs_modello , data_loader_train,
+    statistics = training_loop(writer, num_epochs, optimizer, scheduler, log_interval, rete, num_outputs_modello, data_loader_train,
                                data_loader_val)
 
     # Quando finisce, chiudo il writer
@@ -341,3 +355,18 @@ def execute(name_train: str,
     best_mae = statistics['val_mae_values'][best_epoch - 1]
 
     print(f'Miglior valore di MAE: {best_mae:.2f} epoca: {best_epoch}.')
+
+
+    # Loggo ogni esperimento
+    log_experiment(
+        csv_path="log_esperimenti.csv",
+        data_dict={
+            "esperimento": name_train,
+            "best_epoch": best_epoch,
+            "best_mae": float(best_mae),
+            "lr": starting_lr,
+            "batch_size": data_loader_train.batch_size, # la batch size la prendo direttamente dal data loader
+            "epochs_run": num_epochs,
+            "freeze_until": rete.freeze_until if hasattr(rete, "freeze_until") else "sconosciuto"
+        }
+    )

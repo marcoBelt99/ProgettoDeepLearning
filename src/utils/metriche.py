@@ -1,12 +1,28 @@
 import torch
 
-def mean_euclidean_distance(preds, targets, num_punti=14):
-    '''
-    Misura di valutazione delle performance sperabilmente piu' efficace della semplice
-    MSE. La MSE potrebbe essere difficile da interpretare in termini spaziali.
-    Invece, con la MED posso dire "In media, i punti sono predetti con un errore di x pixel."
-    '''
-    preds = preds.view(-1, num_punti, 2)
-    targets = targets.view(-1, num_punti, 2)
+def calcola_mae_pixel(predictions, targets, img_size):
+    """
+    Calcola il MAE come metrica per i pixel.
+    In particolare, i passaggi eseguiti dalla funzione sono:
+    - Prende keypoint normalizzati (valori tra 0 e 1)
+    - Li riporta a coordinate pixel, moltiplicando per img_size
+    - Calcola la differenza assoluta
+    - Fa la media, ottienendo il Mean Absolute Error
+    """
+    pred_pixels = predictions * img_size # moltiplicando per img_size vado a denormalizzare e passo da valori in [0,1] a valori in [0, 255]
+    target_pixels = targets * img_size #   moltiplicando per img_size vado a denormalizzare e passo da valori in [0,1] a valori in [0, 255]
+
+    return torch.abs(pred_pixels - target_pixels) .mean(dim=1).mean().item() # nuovo
+
+def mean_euclidean_distance(preds, targets, img_size, num_outputs_modello):
+    """
+    Calcola la distanza euclidea media tra i keypoints predetti e quelli reali, espressa in pixel.
+    È una metrica molto usata in rilevamento di punti anatomici, facial landmarks e keypoint detection.
+
+    """
+    # preds = preds.view(-1, 14, 2) * img_size # moltiplicando per img_size vado a denormalizzare, passando da valori in [0,1] ai veri valori assunti dai pixel
+    preds = preds.view(-1, num_outputs_modello, 2) * img_size # moltiplicando per img_size vado a denormalizzare, passando da valori in [0,1] ai veri valori assunti dai pixel
+    # targets = targets.view(-1, 14, 2) * img_size
+    targets = targets.view(-1, num_outputs_modello, 2) * img_size
     dists = torch.norm(preds - targets, dim=2)
     return dists.mean().item()

@@ -1,0 +1,5 @@
+esperimento,best_epoch,best_mae,lr,batch_size,epochs_run,freeze_until
+GRUPPO1_resnet18,20,4.947944331169128,0.0001,16,20,sconosciuto
+GRUPPO2_resnet18,19,5.413423788547516,0.0001,16,20,sconosciuto
+GRUPPO3_resnet18,19,4.737467074394226,0.0001,16,20,sconosciuto
+GRUPPO4_resnet18,19,4.977997362613678,0.0001,16,20,sconosciuto
