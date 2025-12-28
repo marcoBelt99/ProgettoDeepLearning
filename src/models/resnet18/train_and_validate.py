@@ -183,7 +183,11 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
         loader_val: il data loader contenente i dati di validazione.
     '''
 
-    criterion = nn.MSELoss() # TODO: valutare se passarglielo come parametro
+    # TODO: cambiamento da MSELoss ad SmoothL1 Loss per mitigare errori
+    #  con punti che sbagliano tanto ("outlier").
+    # TODO: valutare se passare criterion come parametro
+    # criterion = nn.MSELoss() #
+    criterion = nn.SmoothL1Loss(beta=1.0 / IMG_SIZE) # ≈ soglia di 1 pixel (ottimo per 224×224)
     loop_start = timer()
 
     ## Inizializzo delle liste per salvare, ad ogni epoca le mie loss e le distanze (mae, med) sul training set e sul validation set
@@ -296,7 +300,7 @@ def execute(name_train: str,
             num_epochs: int,
             num_outputs_modello: int,
             data_loader_train : DataLoader,
-            data_loader_val : DataLoader) -> None:
+            data_loader_test : DataLoader) -> None:
 
     """
     Esegue il training loop.
@@ -307,7 +311,7 @@ def execute(name_train: str,
         starting_lr: il learning rate di partenza.
         num_epochs: il numero di epoche.
         data_loader_train: il data loader con i dati di training.
-        data_loader_val: il data loader con i dati di validazione.
+        data_loader_test: il data loader con i dati di validazione.
     """
 
     # Visualizzazione (per tensorboard)
@@ -345,7 +349,7 @@ def execute(name_train: str,
 
     # Richiamo il loop di training, e salvo le statistiche (il dizionario che mi viene ritornato)
     statistics = training_loop(writer, num_epochs, optimizer, scheduler, log_interval, rete, num_outputs_modello, data_loader_train,
-                               data_loader_val)
+                               data_loader_test)
 
     # Quando finisce, chiudo il writer
     writer.close()

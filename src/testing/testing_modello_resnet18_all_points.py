@@ -1,13 +1,10 @@
-import torch
 import matplotlib.pyplot as plt
-import cv2
 import numpy as np
-from torchvision import transforms
 import os
-from torchvision import models
-import torch.nn as nn
+from configs.parametri_app import RAGGRUPPAMENTI
 
 from configs.parametri_app import DATAFRAME_MASTER, DATASET_DIR, CHECKPOINTS_DIR
+from models.resnet18.factory import build_resnet18
 from models.resnet18.modello_resnet18_all_points import ResNet18_Keypoints
 from src.data.dataset.repere_dataset import RepereKeypointsDataset
 import pandas as pd
@@ -19,9 +16,9 @@ from models.resnet18.parametri_modello import *
 
 # PARAMETRI DI CONFIGURAZIONE
 
-MODEL_PATH = os.path.join(CHECKPOINTS_DIR, 'resnet18_all_points.pth')
-print("checkpoints dir: ", CHECKPOINTS_DIR)
-print("file .pth: ", MODEL_PATH)
+# MODEL_PATH = os.path.join(CHECKPOINTS_DIR, 'resnet18_all_points.pth')
+#print("checkpoints dir: ", CHECKPOINTS_DIR)
+# print("file .pth: ", MODEL_PATH)
 
 IMG_SIZE = 224
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -30,7 +27,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 # CARICA DATASET E MODELLO
 df = pd.read_csv(DATAFRAME_MASTER)
-dataset = RepereKeypointsDataset(df, img_dir=DATASET_DIR, img_size=IMG_SIZE, trasformazioni=resnet18_data_transforms['test'], augment=False)
+dataset = RepereKeypointsDataset(df, img_dir=DATASET_DIR, img_size=IMG_SIZE, trasformazioni=resnet18_data_transforms['test'])
 
 
 #### TODO: questa roba qui deve SPARIRE perchè:
@@ -48,15 +45,37 @@ La definizione che devi usare è SOLO quella di training.
 
 ### TODO: parte nuova
 
-model = ResNet18_Keypoints(num_outputs=28)
+# model = ResNet18_Keypoints(num_outputs=28)
 
 # Carico i pesi del mio modello che ho allenato
-model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
-model.to(DEVICE)
+#model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
+# model.to(DEVICE)
 
-model.eval()
+# model.eval()
 
 
+MODEL_PATH = os.path.join(CHECKPOINTS_DIR, "GRUPPO1_resnet18_best.pth")
+
+print("Carico modello da:", MODEL_PATH)
+
+def carica_modello(model_path):
+
+    model = build_resnet18(
+        # num_outputs=NUM_TOTALE_PUNTI * 2, # per modello che predice tutti i punti
+        num_outputs= len( RAGGRUPPAMENTI["GRUPPO1"] )*2,
+        pretrained=True,
+        head="linear",
+        freeze_until="layer3"
+    ).to(DEVICE)
+
+    state = torch.load(model_path, map_location=DEVICE)
+    model.load_state_dict(state)
+    model.eval()
+
+    return model
+
+
+model = carica_modello(MODEL_PATH)
 
 
 
