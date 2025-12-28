@@ -301,3 +301,9 @@ fabric.properties
 /data/raw/dataset_14_punti_pulito_06072023.zip
 /data/raw
 /data/dataset
+
+
+
+## File pesanti
+src/models/resnet18/logs
+src/models/checkpoints
