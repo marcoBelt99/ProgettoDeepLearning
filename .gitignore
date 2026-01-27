@@ -307,3 +307,6 @@ fabric.properties
 ## File pesanti
 src/models/resnet18/logs
 src/models/checkpoints
+
+# cose di IntelliJ Idea
+.idea
