@@ -18,10 +18,11 @@ from parametri_modello import IMG_SIZE, DEVICE, BATCH_SIZE
 import matplotlib.pyplot as plt
 
 
-# ==========================================================
-# FUNZIONE: errori per landmark
-# ==========================================================
+
 def errori_per_landmark(model, dataloader, device, img_size):
+    '''
+
+    '''
     model.eval()
     errori = None
 
@@ -32,15 +33,15 @@ def errori_per_landmark(model, dataloader, device, img_size):
 
             pred = model(images)
 
-            # [B, 2N] → [B, N, 2]
+            # effettuo un reshape da: [B, 2N] a: [B, N, 2]
             pred = pred.view(pred.size(0), -1, 2)
             keypoints_true = keypoints_true.view(keypoints_true.size(0), -1, 2)
 
-            # denormalizza
+            # denormalizzazione
             pred *= img_size
             keypoints_true *= img_size
 
-            # distanza euclidea
+            # distanza euclidea per punto
             dist = torch.norm(pred - keypoints_true, dim=2)  # [B, N]
 
             if errori is None:
@@ -79,7 +80,7 @@ def main():
         f"{NOME_GRUPPO}_resnet18_best.pth"
     )
 
-    print(f"▶ Valutazione {NOME_GRUPPO}")
+    print(f"Valutazione {NOME_GRUPPO}")
     print("Carico modello da:", MODEL_PATH)
 
     # ===============================
@@ -112,6 +113,7 @@ def main():
         freeze_until=None
     ).to(DEVICE)
 
+    # Carico il modello più preciso sperimentato
     state = torch.load(MODEL_PATH, map_location=DEVICE)
     model.load_state_dict(state)
 

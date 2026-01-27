@@ -53,11 +53,10 @@ def train( writer : SummaryWriter,
 
     samples_train = 0
     loss_train = 0
-    # size_ds_train = len(train_loader.dataset)
     num_batches = len(train_loader)
 
     # E' importante mettere il modello in modalità train() prima di iniziare il training!
-    # questo al fine del Dropout e della BatchNormalization: perchè durante il training uso il
+    # questo al fine del Dropout e della Batch Normalization: perchè durante il training uso il
     # Dropout, e vado a modificare il valore per la batch norm
     model.train()
 
@@ -71,6 +70,7 @@ def train( writer : SummaryWriter,
 
         loss = criterion(outputs, keypoints)
 
+        # Accumulo la loss pesata per batch (loss.item() * len(images) )
         loss_train += loss.item() * len(images) # tensore.item() mi fa passare da tensore[ numero ] a numero
         samples_train += len(images)
 
@@ -90,8 +90,9 @@ def train( writer : SummaryWriter,
                 # indices_random = torch.randperm(images.size(0))[:4]  # seleziono alcune immagini random
                 # writer.add_images('Samples/Train', denormalize(images[indices_random]), global_step)
 
+
     # Alla fine del for, quando ho finito
-    loss_train /= samples_train # calcolo la loss
+    loss_train /= samples_train # calcolo la loss, dividendo quello che ho accumulato per samples_train
     # TODO: valutare se inserire anche come metrica per il train anche mae e/o med
     return loss_train
 

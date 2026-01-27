@@ -56,7 +56,7 @@ def build_resnet18(num_outputs,
             p.requires_grad = False
 
     elif freeze_until == "layer3":
-        # train layer3, layer4 e fc
+        # allena layer3, layer4 e fc
         for name, p in backbone.named_parameters():
             p.requires_grad = any(l in name for l in ["layer3", "layer4", "fc"])
 
@@ -109,13 +109,13 @@ def build_model_for_group(nome_gruppo: str,
 
 
 
-def freeze_backbone_except(backbone : ResNet, trainable_levels=("fc",)):
-    """
-    Attiva requires_grad solo per alcuni layer.
-    Ad esempio:
-        - ("fc",) solo ultimo layer (fine tuning debole)
-        - ("layer4","fc") ultimi 2 blocchi
-        - ("layer3","layer4","fc") strategia migliore (fine tuning moderato)
-    """
-    for name, param in backbone.named_parameters():
-        param.requires_grad = any(level in name for level in trainable_levels)
+# def freeze_backbone_except(backbone : ResNet, trainable_levels=("fc",)):
+#     """
+#     Attiva requires_grad solo per alcuni layer.
+#     Ad esempio:
+#         - ("fc",) solo ultimo layer (fine tuning debole)
+#         - ("layer4","fc") ultimi 2 blocchi
+#         - ("layer3","layer4","fc") strategia migliore (fine tuning moderato)
+#     """
+#     for name, param in backbone.named_parameters():
+#         param.requires_grad = any(level in name for level in trainable_levels)

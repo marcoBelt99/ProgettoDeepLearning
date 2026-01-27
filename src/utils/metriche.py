@@ -9,10 +9,13 @@ def calcola_mae_pixel(predictions, targets, img_size):
     - Calcola la differenza assoluta
     - Fa la media, ottienendo il Mean Absolute Error
     """
-    pred_pixels = predictions * img_size # moltiplicando per img_size vado a denormalizzare e passo da valori in [0,1] a valori in [0, 255]
-    target_pixels = targets * img_size #   moltiplicando per img_size vado a denormalizzare e passo da valori in [0,1] a valori in [0, 255]
+    pred_pixels = predictions * img_size # moltiplicando per img_size vado a denormalizzare e passo da valori in [0,1] a valori in [0, img_size]
+    target_pixels = targets * img_size #   moltiplicando per img_size vado a denormalizzare e passo da valori in [0,1] a valori in [0, img_size]
 
-    return torch.abs(pred_pixels - target_pixels) .mean(dim=1).mean().item() # nuovo
+    return (torch.abs(pred_pixels - target_pixels) .mean(dim=1).mean().item())
+    # pred_pixels - target_pixels ha shape [batch, 2*K]
+    # mean(dim=1) fa la media su tutte le coordinate x,y di tutti i punti. Ottengo quindi un numero per sample
+    # .mean() faccio la media per gli esempi
 
 def mean_euclidean_distance(preds, targets, img_size, num_outputs_modello):
     """

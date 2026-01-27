@@ -3,6 +3,11 @@ import torch
 import os
 
 class EarlyStopping:
+    '''
+    Implementa la seguente logica:
+    tiene il best, incrementa counter quando non migliora, stop quando supera patience.
+    Salva state_dict() del modello sul best
+    '''
     def __init__(self, patience=8, min_delta=0.0, checkpoint_path=None):
         self.patience = patience
         self.min_delta = min_delta

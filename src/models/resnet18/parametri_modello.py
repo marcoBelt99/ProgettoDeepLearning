@@ -29,5 +29,5 @@ il gradiente non esplode, non collassa, non oscilla.
 '''
 
 # Numero di punti in totale da predire
-NUM_TOTALE_PUNTI = 14
+NUM_TOTALE_PUNTI : int = 14
 

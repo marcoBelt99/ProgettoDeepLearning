@@ -19,7 +19,7 @@ def train_experiment(nome_esperimento : str,
                      lr=LR,
                      num_outputs=NUM_TOTALE_PUNTI * 2 ):
     """
-    Rifattorizzazione di TUTTE le tue funzioni di training in una sola.
+    Rifattorizzazione di TUTTE le funzioni di training in una sola.
     Esegue quindi un esperimento di training usando la factory.
     """
 

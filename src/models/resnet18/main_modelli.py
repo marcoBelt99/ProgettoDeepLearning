@@ -21,7 +21,6 @@ from torchsummary import summary
 
 
 
-
 def train_experiment_for_group(
         nome_esperimento : str,
         nome_gruppo : str,
@@ -35,12 +34,12 @@ def train_experiment_for_group(
 
                      #num_outputs=NUM_TOTALE_PUNTI * 2 ):
     """
-    Rifattorizzazione di TUTTE le tue funzioni di training in una sola.
+    Rifattorizzazione di TUTTE le funzioni di training in una sola.
     Esegue quindi un esperimento di training usando la factory.
     """
 
 
-    print(f"\n▶ Training esperimento: {nome_esperimento}")
+    print(f"\nTraining esperimento: {nome_esperimento}")
 
     # Dataset
     train_set = RepereKeypointsDataset(
@@ -79,8 +78,8 @@ def train_experiment_for_group(
     # 1) Creo il modello, scegliendo anche quali layer sbloccare
     rete = build_model_for_group(
         nome_gruppo,
-        head="linear",
-        freeze_until="layer3"
+        head=head,
+        freeze_until=freeze_until,
     ).to(DEVICE)
 
 
@@ -106,6 +105,16 @@ def train_experiment_for_group(
 
 def main():
 
+    ###################################
+    # TODO: CONFIGURAZIONE ESPERIMENTO
+    ###################################
+    head = "linear" # tipo di testa ("linear" = ho direttamente la testa lineare; "mlp" = testa custom)
+    freeze_until = "layer3" # fin quale layer freezare. In questo caso freeza fino al layer2 (compreso),
+    # mentre allena layer3, layer4, fc
+    lr = LR # learning rate usato
+
+
+
     ## Carico il dataframe master
     df = pd.read_csv(DATAFRAME_MASTER)
 
@@ -120,14 +129,26 @@ def main():
     ## Ciclo su tutti gli indici dei punti
     for nome_gruppo, indici_punti in RAGGRUPPAMENTI.items():
 
+       nome_esperimento = (f"{nome_gruppo}_resnet18_"f"{freeze_until}_{head}_lr{lr}")
+
+       """
+       Conviene chiamare così, in questo modo so sempre:
+       - che backbone
+       - che freeze
+       - che head
+       - che learning rate
+       hanno prodotto quel risultato.
+       """
+
        train_experiment_for_group(
-           nome_esperimento=f"{nome_gruppo}_resnet18",
+           # nome_esperimento=f"{nome_gruppo}_resnet18",
+           nome_esperimento=nome_esperimento,
            nome_gruppo=nome_gruppo,
            lista_indici_punti_gruppo=indici_punti,
            train_df=train_df,
            test_df=test_df,
-           head="linear",
-           freeze_until="layer3",
+           head=head,
+           freeze_until=freeze_until,
            lr=LR
        )
 

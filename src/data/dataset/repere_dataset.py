@@ -1,6 +1,6 @@
 import torch
 from albumentations import Compose
-from torch.utils.data import Dataset, random_split
+from torch.utils.data import Dataset
 
 import cv2
 import pandas as pd

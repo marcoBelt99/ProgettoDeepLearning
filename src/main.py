@@ -1,4 +1,3 @@
-from torchvision import transforms
 from torch.utils.data import DataLoader
 import pandas as pd
 
