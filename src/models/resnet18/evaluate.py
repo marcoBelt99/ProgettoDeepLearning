@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 from torch.utils.data import DataLoader
 
-from src.data.dataset.repere_dataset import RepereKeypointsDataset
+from altro.deprecati.repere_dataset import RepereKeypointsDataset
 from factory import build_resnet18
-from models.resnet18.trasformazioni import resnet18_data_transforms
+from altro.deprecati.trasformazioni import resnet18_data_transforms
 from configs.parametri_app import (
     DATAFRAME_MASTER,
     DATASET_DIR,

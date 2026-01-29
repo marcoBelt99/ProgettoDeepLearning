@@ -5,11 +5,10 @@ from configs.parametri_app import RAGGRUPPAMENTI
 
 from configs.parametri_app import DATAFRAME_MASTER, DATASET_DIR, CHECKPOINTS_DIR
 from models.resnet18.factory import build_resnet18
-from models.resnet18.modello_resnet18_all_points import ResNet18_Keypoints
-from src.data.dataset.repere_dataset import RepereKeypointsDataset
+from altro.deprecati.repere_dataset import RepereKeypointsDataset
 import pandas as pd
 
-from models.resnet18.trasformazioni import resnet18_data_transforms
+from altro.deprecati.trasformazioni import resnet18_data_transforms
 from models.resnet18.parametri_modello import *
 
 

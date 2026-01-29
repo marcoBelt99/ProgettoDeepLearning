@@ -21,7 +21,17 @@ resnet18_data_transforms = {
     'train' : A.Compose([
 
                 # Ridimensionamento a IMG_SIZE x IMG_SIZE
-                A.Resize(IMG_SIZE, IMG_SIZE),
+                # A.Resize(IMG_SIZE, IMG_SIZE),
+
+                # Al posto di resize, è più conveniente fare le seguenti due:
+                A.LongestMaxSize(max_size=IMG_SIZE),
+                A.PadIfNeeded(
+                    min_height=IMG_SIZE,
+                    min_width=IMG_SIZE,
+                    border_mode=cv2.BORDER_CONSTANT,
+                    fill=0,
+                    p=1.0
+                ),
 
                 # FIXME: dovrei forse usare A.Affine() che è più moderna,
                 #  al posto della A.ShiftScaleRotate().
@@ -51,17 +61,12 @@ resnet18_data_transforms = {
                 # A.GaussNoise(sigma_limit=(5, 15), mean=0, p=0.2),
                 # A.GaussNoise(noise_scale=(5, 15), p=0.2),
                 A.GaussNoise(
-                    std_range=(5/255, 15/255),    # valori consigliati: devono essere in [0,1] perché l’immagine è normalizzata
+                    std_range=(5/255, 15/255),
                     mean_range=(0.0, 0.0),
                     noise_scale_factor=1.0,
                     p=0.2
                 ),
 
-
-
-                # A.GaussNoise(std_range=(5.0, 15.0), p=0.2), # nuova modifica, però da errore
-                # TODO: Per GaussNoise, visto che ha cambiato API, la versione corretta dovrebbe essere:
-                # A.GaussNoise(var_limit=(5, 30), mean=0, p=0.2)
                 A.CLAHE(clip_limit=2.0, p=0.2),
                 A.GaussianBlur(blur_limit=3, p=0.1),
 
@@ -72,7 +77,8 @@ resnet18_data_transforms = {
                 # tecnicamente non dovrebbero andare a modificare
                 # la forma del viso → sono sicure per i keypoints.
                 #####################################
-                A.HorizontalFlip(p=0.5),
+
+                A.HorizontalFlip(p=0.2),
 
                 # A.RandomResizedCrop(
                 #     size=(IMG_SIZE, IMG_SIZE),
@@ -109,9 +115,21 @@ resnet18_data_transforms = {
 
             # con remove_invisible=False evito che Albumentations elimini punti invisibili
 
-    # Trasformazioni da applicare per il test
+    # Trasformazioni da applicare per il test e per eventuale validation
     'test' : A.Compose([
-                A.Resize(IMG_SIZE, IMG_SIZE),
+                # Ridimensionamento a IMG_SIZE x IMG_SIZE
+                # A.Resize(IMG_SIZE, IMG_SIZE),
+
+                # Al posto di resize, è più conveniente fare le seguenti due:
+                A.LongestMaxSize(max_size=IMG_SIZE),
+                A.PadIfNeeded(
+                    min_height=IMG_SIZE,
+                    min_width=IMG_SIZE,
+                    border_mode=cv2.BORDER_CONSTANT,
+                    fill=0,
+                    p=1.0
+                ),
+
                 normalizzazione, # va sempre prima della tensorizzazione
                 ToTensorV2()
             ],

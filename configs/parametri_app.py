@@ -91,5 +91,13 @@ RAGGRUPPAMENTI = {
     "GRUPPO4": [6, 13]          # Pg, Mesial
 }
 
+NOMI_PUNTI_RAGGRUPPAMENTI = {
+    "GRUPPO1": ['S', 'N', 'A', 'B'],
+    "GRUPPO2": ['Sna', 'Snp', 'Gn', 'Go'],
+    "GRUPPO3": ['U1r', 'U1t', 'L1r', 'L1t'],
+    "GRUPPO4": ['Pg', 'Mesial']
+}
+
+
 ## Mi salvo tutti gli indici dei raggruppamenti per il modello più generale
 lista_indici_di_tutti_i_punti = sum( RAGGRUPPAMENTI.values(), [] )

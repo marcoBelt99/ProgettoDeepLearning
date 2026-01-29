@@ -14,13 +14,13 @@ def build_resnet18(num_outputs,
     Restituisce una ResNet18 customizzata.
     Args:
         num_outputs (int): Numero di outputs della rete
-        pretrained (bool, optional): Bool di pretraine. Default: True
+        pretrained (bool, optional): Bool di pretrained. Default: True
         mlp_hidden: numero di neuroni degli strati nascosti (dal più "profondo" al meno) che aggiungo
                     alla testa.
 
         head: come dev'essere fatta la head
-            - "linear" = Linear(512, outputs)
-            - "mlp"    = MLP 512 → mlp_hidden → outputs
+            - "linear" = Linear(512, num_outputs_che_mi_servono)
+            - "mlp"    = MLP 512 => mlp_hidden => num_outputs_che_mi_servono
 
         freeze_until: None = non congela nulla (train all)
                       "fc" = congela tutto tranne fc
@@ -78,6 +78,13 @@ def build_resnet18(num_outputs,
     else:
         raise ValueError(f"Opzione freeze_until non valida: {freeze_until}")
 
+
+    # Aggiungo dei metadati al modello, che mi serviranno per la funzione log_experiment()
+    backbone.freeze_until = freeze_until
+    backbone.head_type = head
+    backbone.pretrained_flag = bool(pretrained)
+    backbone.num_outputs = int(num_outputs)
+
     # Restituisco la backbone costruita
     return backbone
 
@@ -97,25 +104,21 @@ def build_model_for_group(nome_gruppo: str,
     num_punti = len(RAGGRUPPAMENTI[nome_gruppo])
     num_outputs = num_punti * 2  # x e y per ciascun punto
 
-    print(f"Creo ResNet18 per {nome_gruppo} → {num_punti} punti → {num_outputs} output")
+    print(f"Creo ResNet18 per {nome_gruppo} che ha {num_punti} punti ==> pertanto la rete ha {num_outputs} uscite.")
 
-    return build_resnet18(
+    model =  build_resnet18(
         num_outputs=num_outputs,
         pretrained=pretrained,
         head=head,
         freeze_until=freeze_until
     )
 
+    # Aggiungo metadati necessari al logging
+    model.group_name = nome_gruppo
+    model.num_points = int(num_punti)
+
+    return model
 
 
 
-# def freeze_backbone_except(backbone : ResNet, trainable_levels=("fc",)):
-#     """
-#     Attiva requires_grad solo per alcuni layer.
-#     Ad esempio:
-#         - ("fc",) solo ultimo layer (fine tuning debole)
-#         - ("layer4","fc") ultimi 2 blocchi
-#         - ("layer3","layer4","fc") strategia migliore (fine tuning moderato)
-#     """
-#     for name, param in backbone.named_parameters():
-#         param.requires_grad = any(level in name for level in trainable_levels)
+

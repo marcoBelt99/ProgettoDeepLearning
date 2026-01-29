@@ -3,7 +3,7 @@ import pandas as pd
 from torch.utils.data import DataLoader
 
 from configs.parametri_app import DATAFRAME_MASTER, RAGGRUPPAMENTI, DATASET_DIR
-from models.resnet18.trasformazioni import resnet18_data_transforms
+from altro.deprecati.trasformazioni import resnet18_data_transforms
 from parametri_modello import (
     IMG_SIZE,
     TRAIN_RATIO,
@@ -13,9 +13,9 @@ from parametri_modello import (
     EPOCHS
 )
 
-from src.data.dataset.repere_dataset import RepereKeypointsDataset
+from altro.deprecati.repere_dataset import RepereKeypointsDataset
 from factory import build_model_for_group
-from train_and_validate import execute
+from train_and_validate_1 import execute
 from torchsummary import summary
 
 
@@ -109,14 +109,15 @@ def main():
     # TODO: CONFIGURAZIONE ESPERIMENTO
     ###################################
     head = "linear" # tipo di testa ("linear" = ho direttamente la testa lineare; "mlp" = testa custom)
-    freeze_until = "layer3" # fin quale layer freezare. In questo caso freeza fino al layer2 (compreso),
-    # mentre allena layer3, layer4, fc
+    freeze_until = "layer3" # fin quale layer freezare. In questo caso (impostando il valore "layer3") freeza fino al layer2 (compreso),
+    # mentre, appunto, allena: layer3, layer4, fc
     lr = LR # learning rate usato
 
 
 
     ## Carico il dataframe master
     df = pd.read_csv(DATAFRAME_MASTER)
+
 
     ## Splitting (DA FARE UNA SOLA VOLTA)
     train_df = df.sample( frac=TRAIN_RATIO, random_state=42 )

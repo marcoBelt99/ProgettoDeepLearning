@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import os
 
-from models.resnet18.trasformazioni import resnet18_data_transforms
+from altro.deprecati.trasformazioni import resnet18_data_transforms
 
 class RepereKeypointsDataset(Dataset):
 

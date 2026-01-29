@@ -17,10 +17,10 @@ class EarlyStopping:
         self.best_score = np.inf
         self.early_stop = False
 
-    def __call__(self, metric, model):
+    def __call__(self, metrica, model):
 
-        if metric < self.best_score - self.min_delta:
-            self.best_score = metric
+        if metrica < self.best_score - self.min_delta:
+            self.best_score = metrica
             self.counter = 0
 
             if self.checkpoint_path:

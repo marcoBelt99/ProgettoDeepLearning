@@ -24,8 +24,7 @@ from utils.metriche import *
 
 from timeit import default_timer as timer # timer per monitorare il tempo che impiego ad allenare il modello
 
-
-
+from utils.utils import plot_test_grid
 
 
 # Train di un'epoca
@@ -133,12 +132,15 @@ def validate(model : nn.Module,
             outputs = model(images)
 
             loss = criterion(outputs, keypoints)
-
             loss_val += loss.item() * len(images)
+
             samples_val += len(images)
 
-            mae_val += calcola_mae_pixel(outputs, keypoints, IMG_SIZE) * images.size(0)
-            med_val += mean_euclidean_distance(outputs, keypoints, IMG_SIZE, num_outputs_modello) * images.size(0)
+            # Metriche su output clampato (solo per reporting)
+            outputs_m = outputs.clamp(0.0, 1.0)
+
+            mae_val += calcola_mae_pixel(outputs_m, keypoints, IMG_SIZE) * images.size(0)
+            med_val += mean_euclidean_distance(outputs_m, keypoints, IMG_SIZE, num_outputs_modello) * images.size(0)
 
     loss_val /= samples_val
     mae_val /= samples_val
@@ -169,7 +171,10 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
                     num_outputs_modello : int,
                     loader_train : DataLoader,
                     loader_val : DataLoader,
-                    verbose : bool=True) -> Dict:
+                    verbose : bool=True,
+                    run_name : str = "",
+                    save_plots : bool = True,
+                    show_plots : bool = False) -> Dict:
     '''
     Esegue il loop di training.
 
@@ -191,6 +196,13 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
     criterion = nn.SmoothL1Loss(beta=1.0 / IMG_SIZE) # ≈ soglia di 1 pixel (ottimo per 224×224)
     loop_start = timer()
 
+    ## Gestione del nome dell'esperimento di training
+    if run_name == "":
+        run_name = writer.log_dir.split(os.sep)[-1]
+    plots_dir = "plots"
+    if save_plots:
+        os.makedirs(plots_dir, exist_ok=True)
+
     ## Inizializzo delle liste per salvare, ad ogni epoca le mie loss e le distanze (mae, med) sul training set e sul validation set
     losses_values = []
     val_losses = [] # mi serve solo per stamparla con matplotlib
@@ -199,11 +211,10 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
     val_mae_values = []
     val_med_values = []
 
-    # TODO: implemento una strategia di best per salvarmi il miglior modello
-    #  quello avente metriche migliori
-    best_mae = float('inf')  # Inizializzo con infinito
 
-    # Provo ad implementare early stopping
+    ## Provo ad implementare early stopping
+    #  (cerco quindi una strategia di best per salvarmi il miglior modello,
+    #  quello avente metriche migliori)
     early_stopper = EarlyStopping(
         patience=10,
         min_delta=1e-4,
@@ -222,10 +233,6 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
 
         time_end = timer()
 
-        early_stopper(mae_val, model)
-        if early_stopper.early_stop:
-            print("Early stopping impostato")
-            break
 
         # Salvo tutte le loss e le metriche di distanza
         losses_values.append(loss_train)
@@ -233,13 +240,6 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
         val_mae_values.append(mae_val)
         val_med_values.append(med_val)
 
-        if mae_val < best_mae:
-            best_mae = mae_val
-            # Salvataggio del modello
-            #torch.save( model.state_dict(), os.path.join(CHECKPOINTS_DIR, "best_resnet18.pth.pth") )
-            save_path = os.path.join(CHECKPOINTS_DIR, f"{writer.log_dir.split(os.sep)[-1]}_best.pth")
-            torch.save(model.state_dict(), save_path)
-            print(f"🟢 Salvato miglior modello: {save_path}")
 
         ## Se uso un l.r. scheduler, allora:
         #     se voglio mostrare il l.r. nel mio plots in tensorboard o a console,
@@ -262,6 +262,11 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
         writer.add_scalars('Metriche/Losses', {"Train": loss_train, "Val": loss_val}, epoch)
         # TODO: ha senso mettere anche mae e med per train?
         # writer.add_scalars('Metriche/Accuratezza', {"Train": accuracy_train, "Val": accuracy_val}, epoch)
+
+        # Aggiunta di MAE e MED in pixel
+        writer.add_scalar('Metriche/MAE_Val_px', mae_val, epoch)
+        writer.add_scalar('Metriche/MED_Val_px', med_val, epoch)
+
         writer.flush()  # flusho, così la prossima volta posso scrivere un nuovo valore
 
         # Ogni volta in questa epoca incremento lo step.
@@ -274,14 +279,49 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
             # Il valore si ottiene solo dopo la validazione, non durante il training batch-per-batch.
             # Il learning rate va aggiornato a fine epoca, non ad ogni batch.
 
+        # Early stopping alla fine dell'epoca (dopo aver loggato tutto)
+        early_stopper(mae_val, model)
+        if early_stopper.early_stop:
+            print(f"Early stopping: stop ad epoca: {epoch}. Best MAE: {early_stopper.best_score:.4f}")
+            break
+
         loop_end = timer()
         time_loop = loop_end - loop_start
 
         if verbose:
             print(f'Tempo per {num_epochs} epoche (s): {(time_loop):.3f}')
 
+
+    ## Plotting finale
+    # LOSS
+    plt.figure()
     plotta_loss(losses_values, val_losses)
-    plt.show()
+    plt.title(f"Loss - {run_name}")
+    if save_plots:
+        plt.savefig(os.path.join(plots_dir, f"{run_name}_loss.png"), dpi=150, bbox_inches="tight")
+    if show_plots:
+        plt.show()
+    plt.close()
+
+    # MAE
+    plt.figure()
+    plotta_mae(val_mae_values)
+    plt.title(f"MAE (Val, px) - {run_name}")
+    if save_plots:
+        plt.savefig(os.path.join(plots_dir, f"{run_name}_mae.png"), dpi=150, bbox_inches="tight")
+    if show_plots:
+        plt.show()
+    plt.close()
+
+    # MED
+    plt.figure()
+    plotta_med(val_med_values)
+    plt.title(f"MED (Val, px) - {run_name}")
+    if save_plots:
+        plt.savefig(os.path.join(plots_dir, f"{run_name}_med.png"), dpi=150, bbox_inches="tight")
+    if show_plots:
+        plt.show()
+    plt.close()
 
     # Ritorno un dizionario con le metriche
     return {'loss_values': losses_values,
@@ -301,6 +341,7 @@ def execute(name_train: str,
             num_epochs: int,
             num_outputs_modello: int,
             data_loader_train : DataLoader,
+            data_loader_val : DataLoader,
             data_loader_test : DataLoader) -> None:
 
     """
@@ -348,9 +389,13 @@ def execute(name_train: str,
         # verbose=True # unexpected argument
     )
 
-    # Richiamo il loop di training, e salvo le statistiche (il dizionario che mi viene ritornato)
-    statistics = training_loop(writer, num_epochs, optimizer, scheduler, log_interval, rete, num_outputs_modello, data_loader_train,
-                               data_loader_test)
+    ## Richiamo il loop di training, e salvo le statistiche.
+    statistics : dict = training_loop(writer, num_epochs, optimizer, scheduler, log_interval,
+                               rete, num_outputs_modello,
+                               data_loader_train, data_loader_val,
+                               run_name=name_train, # Per salvare i grafici con nome gruppo e non interrompere l’esecuzione dei 4 esperimenti
+                               save_plots=True,
+                               show_plots=False)
 
     # Quando finisce, chiudo il writer
     writer.close()
@@ -362,16 +407,66 @@ def execute(name_train: str,
     print(f'Miglior valore di MAE: {best_mae:.2f} epoca: {best_epoch}.')
 
 
-    # Loggo ogni esperimento
+    ## Nuovo:
+    #  Valutazione finale su TEST usando il best checkpoint
+    best_path = os.path.join(CHECKPOINTS_DIR, f"{name_train}_BEST_EARLY.pth")
+    if not os.path.exists(best_path):
+
+        ## fallback se vuoi usare l’altro salvataggio (_best.pth)
+        #best_path = os.path.join(CHECKPOINTS_DIR, f"{name_train}_best.pth")
+        raise FileNotFoundError(
+            f"Checkpoint best non trovato: {best_path}. "
+            "Controlla che EarlyStopping stia salvando correttamente."
+        )
+
+    rete.load_state_dict(torch.load(best_path, map_location=DEVICE))
+    rete.to(DEVICE)
+
+    criterion = nn.SmoothL1Loss(beta=1.0 / IMG_SIZE)
+
+    loss_test, mae_test, med_test = validate(
+        rete, data_loader_test, DEVICE, criterion, num_outputs_modello
+    )
+
+    print(f"TEST (best checkpoint) -> Loss: {loss_test:.4f} | MAE(px): {mae_test:.3f} | MED(px): {med_test:.3f}")
+
+
+    ## Visualizzazione griglia dal TEST set (predetti vs reali)
+    try:
+        run_name = name_train
+        grid_path = os.path.join("plots", f"{run_name}_testgrid.png")
+        plot_test_grid(
+            model=rete,
+            test_loader=data_loader_test,
+            num_outputs_modello=num_outputs_modello,
+            img_size=IMG_SIZE,
+            n_images=10,
+            cols=5,
+            save_path=grid_path,
+            title=f"TEST GRID - {run_name}"
+        )
+    except Exception as e:
+        print(f"[WARN] Impossibile creare la test grid: {e}")
+
+
+
+    ## Loggo ogni esperimento sul file CSV
     log_experiment(
         csv_path="log_esperimenti.csv",
         data_dict={
             "esperimento": name_train,
-            "best_epoch": best_epoch,
-            "best_mae": float(best_mae),
-            "lr": starting_lr,
-            "batch_size": data_loader_train.batch_size, # la batch size la prendo direttamente dal data loader
-            "epochs_run": num_epochs,
-            "freeze_until": rete.freeze_until if hasattr(rete, "freeze_until") else "sconosciuto"
+            "tot_epochs": num_epochs, # totale epoche
+            "best_epoch": best_epoch, # epoca migliore
+            "best_mae": float(best_mae), # miglior valore di MAE
+            "loss_function": criterion.__class__.__name__,  # nome della funzione di loss scelta
+            "lr": starting_lr, # lr usato
+            "optimizer": type(optimizer).__name__, # ottimizzatore usato
+            "scheduler": type(scheduler).__name__ if scheduler else "None", # se ho usato o meno uno scheduler
+            "batch_size": data_loader_train.batch_size,
+            "epochs_run": len(statistics["loss_values"]),  # epoche effettivamente runnate (perchè magari potrei aver fatto early stopping)
+            "freeze_until": getattr(rete, "freeze_until", "sconosciuto"), # strategia di modello usata
+            "head": getattr(rete, "head_type", "linear"), # tipologia di testa usata
+            "img_size": IMG_SIZE,
+            # "seed": 42,  # se lo uso usando davvero
         }
     )

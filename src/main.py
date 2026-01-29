@@ -2,7 +2,7 @@ from torch.utils.data import DataLoader
 import pandas as pd
 
 from configs.parametri_app import DATASET_DIR, DATAFRAME_MASTER
-from data.dataset.repere_dataset import crea_split_dataset
+from altro.deprecati.repere_dataset import crea_split_dataset
 
 
 # Leggo il DataFrame

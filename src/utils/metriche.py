@@ -1,4 +1,5 @@
 import torch
+import matplotlib.pyplot as plt
 
 def calcola_mae_pixel(predictions, targets, img_size):
     """
@@ -29,3 +30,18 @@ def mean_euclidean_distance(preds, targets, img_size, num_outputs_modello):
     targets = targets.view(-1, num_outputs_modello, 2) * img_size
     dists = torch.norm(preds - targets, dim=2)
     return dists.mean().item()
+
+
+
+
+def plotta_mae(val_mae_values):
+    plt.plot(val_mae_values, label="MAE di validation (px)")
+    plt.xlabel("epoch")
+    plt.ylabel("MAE (px)")
+    plt.legend()
+
+def plotta_med(val_med_values):
+    plt.plot(val_med_values, label="MED di validation (px)")
+    plt.xlabel("epoch")
+    plt.ylabel("MED (px)")
+    plt.legend()

@@ -4,10 +4,10 @@ from torch.utils.data import DataLoader
 from torchsummary import summary
 
 from configs.parametri_app import DATAFRAME_MASTER, DATASET_DIR, num_totale_punti
-from src.data.dataset.repere_dataset import  crea_split_dataset # per splittare e creare il dataset usando come struttura dati il dataframe
+from altro.deprecati.repere_dataset import  crea_split_dataset # per splittare e creare il dataset usando come struttura dati il dataframe
 from factory import *
 from parametri_modello import *
-from train_and_validate import  execute # metodo che chiama il training loop. Il training loop cicla su tutte le epoche e fa prima training
+from train_and_validate_1 import  execute # metodo che chiama il training loop. Il training loop cicla su tutte le epoche e fa prima training
 # tante volte quanti sono i batch, e poi fa tante validation quanti sono i batch.
 
 

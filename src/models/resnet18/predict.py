@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import cv2
 
 from factory import build_resnet18
-from src.data.dataset.repere_dataset import RepereKeypointsDataset
-from models.resnet18.trasformazioni import resnet18_data_transforms
+from src.data.dataset.repere_dataset_1 import RepereKeypointsDataset # uso repere_dataset_1
+from models.resnet18.trasformazioni_1 import resnet18_data_transforms # uso trasformazioni_1
 from parametri_modello import *
 
 from configs.parametri_app import (
@@ -26,22 +26,23 @@ from configs.parametri_app import (
 # 1) Scelgo se e quale gruppo voglio valutare
 #    assegnare None se non voglio valutare i gruppi
 
-# GRUPPO = "GRUPPO1"
-GRUPPO = None
+GRUPPO = "GRUPPO1"
+# GRUPPO = None # (se voglio il modello che predice tutti i punti contemporaneamente)
 
 # 2) Scelgo quale modello di rete neurale usare
 
 # MODEL_PATH = os.path.join(CHECKPOINTS_DIR, "GRUPPO1_resnet18_best.pth")
 # MODEL_PATH = os.path.join(CHECKPOINTS_DIR, "GRUPPO1_resnet18_BEST_EARLY.pth")
-MODEL_PATH = os.path.join(CHECKPOINTS_DIR, 'layer3_4_fc_best.pth')
+# MODEL_PATH = os.path.join(CHECKPOINTS_DIR, 'layer3_4_fc_best.pth')
+MODEL_PATH = os.path.join(CHECKPOINTS_DIR, 'GRUPPO1_resnet18_layer3_linear_lr0.0001_epoche60_BEST_EARLY.pth')
 
 
 
 # CARICAMENTO MODELLO scelto
 
-
 def carica_modello(model_path):
 
+    # carico la struttura del modello
     model = build_resnet18(
         num_outputs= ( len(RAGGRUPPAMENTI[GRUPPO]) if GRUPPO is not None else NUM_TOTALE_PUNTI) * 2,
         # pretrained=True,
@@ -50,6 +51,7 @@ def carica_modello(model_path):
         # freeze_until="layer3"
     ).to(DEVICE)
 
+    # ne carico i pesi
     state = torch.load(model_path, map_location=DEVICE)
     model.load_state_dict(state)
     model.eval()
