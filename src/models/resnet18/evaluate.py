@@ -74,10 +74,10 @@ def main():
     # ===============================
     # CONFIG
     # ===============================
-    NOME_GRUPPO = "GRUPPO1"  # ← cambia qui (GRUPPO1, GRUPPO2, ...)
+    NOME_GRUPPO = "GRUPPO4"  # ← cambia qui (GRUPPO1, GRUPPO2, ...)
     MODEL_PATH = os.path.join(
         CHECKPOINTS_DIR,
-        f"{NOME_GRUPPO}_resnet18_best.pth"
+        f"{NOME_GRUPPO}_resnet18_layer3_linear_lr0.0001_epoche60_BEST_EARLY.pth"
     )
 
     print(f"Valutazione {NOME_GRUPPO}")

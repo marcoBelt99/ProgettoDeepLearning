@@ -1,2 +1,5 @@
 esperimento,tot_epochs,best_epoch,best_mae,loss_function,lr,optimizer,scheduler,batch_size,epochs_run,freeze_until,head,img_size
 GRUPPO1_resnet18_layer3_linear_lr0.0001_epoche10,10,9,5.992255592346192,SmoothL1Loss,0.0001,Adam,ReduceLROnPlateau,16,10,layer3,linear,224
+GRUPPO2_resnet18_layer3_linear_lr0.0001_epoche60,60,58,2.09551602602005,SmoothL1Loss,0.0001,Adam,ReduceLROnPlateau,16,60,layer3,linear,224
+GRUPPO3_resnet18_layer3_linear_lr0.0001_epoche60,60,57,2.028166484832764,SmoothL1Loss,0.0001,Adam,ReduceLROnPlateau,16,60,layer3,linear,224
+GRUPPO4_resnet18_layer3_linear_lr0.0001_epoche60,60,52,1.7038890957832336,SmoothL1Loss,0.0001,Adam,ReduceLROnPlateau,16,60,layer3,linear,224

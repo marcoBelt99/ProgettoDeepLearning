@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+from torchvision.models import ResNet
 
 from factory import build_resnet18
 from src.data.dataset.repere_dataset_1 import RepereKeypointsDataset # uso repere_dataset_1
@@ -26,7 +27,7 @@ from configs.parametri_app import (
 # 1) Scelgo se e quale gruppo voglio valutare
 #    assegnare None se non voglio valutare i gruppi
 
-GRUPPO = "GRUPPO1"
+GRUPPO = "GRUPPO4"
 # GRUPPO = None # (se voglio il modello che predice tutti i punti contemporaneamente)
 
 # 2) Scelgo quale modello di rete neurale usare
@@ -34,7 +35,8 @@ GRUPPO = "GRUPPO1"
 # MODEL_PATH = os.path.join(CHECKPOINTS_DIR, "GRUPPO1_resnet18_best.pth")
 # MODEL_PATH = os.path.join(CHECKPOINTS_DIR, "GRUPPO1_resnet18_BEST_EARLY.pth")
 # MODEL_PATH = os.path.join(CHECKPOINTS_DIR, 'layer3_4_fc_best.pth')
-MODEL_PATH = os.path.join(CHECKPOINTS_DIR, 'GRUPPO1_resnet18_layer3_linear_lr0.0001_epoche60_BEST_EARLY.pth')
+# MODEL_PATH = os.path.join(CHECKPOINTS_DIR, 'GRUPPO1_resnet18_layer3_linear_lr0.0001_epoche60_BEST_EARLY.pth')
+MODEL_PATH = os.path.join(CHECKPOINTS_DIR, 'GRUPPO4_resnet18_layer3_linear_lr0.0001_epoche60_BEST_EARLY.pth')
 
 
 
@@ -43,7 +45,7 @@ MODEL_PATH = os.path.join(CHECKPOINTS_DIR, 'GRUPPO1_resnet18_layer3_linear_lr0.0
 def carica_modello(model_path):
 
     # carico la struttura del modello
-    model = build_resnet18(
+    model : ResNet = build_resnet18(
         num_outputs= ( len(RAGGRUPPAMENTI[GRUPPO]) if GRUPPO is not None else NUM_TOTALE_PUNTI) * 2,
         # pretrained=True,
         pretrained= False,
@@ -189,10 +191,15 @@ if __name__ == "__main__":
 
     # 2) MOSTRA PREDIZIONI
 
-    # Immagine interna del dataset (reali + predetti)
+    ## Immagine interna del dataset (reali + predetti, così vedo quanto distanti sono)
     img_dataset = os.path.join(DATASET_DIR, "5.jpg")
     show_prediction(img_dataset, model, dataset)
 
-    #  Immagine esterna (solo predetti)
+
+    ##  Immagine esterna (solo predetti) presa da un DS su internet
     img_external = os.path.join(TESTING_DIR, "Convex_Concave/234.jpg")
+    show_prediction(img_external, model)
+
+    # ancora con un'immagine esterna
+    img_external = os.path.join(TESTING_DIR, "Convex_Concave/138.jpg")
     show_prediction(img_external, model)

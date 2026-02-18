@@ -353,7 +353,8 @@ def execute(name_train: str,
         starting_lr: il learning rate di partenza.
         num_epochs: il numero di epoche.
         data_loader_train: il data loader con i dati di training.
-        data_loader_test: il data loader con i dati di validazione.
+        data_loader_val: il data loader con i dati di validazione.
+        data_loader_test: il data loader con i dati di test.
     """
 
     # Visualizzazione (per tensorboard)
@@ -412,11 +413,11 @@ def execute(name_train: str,
     best_path = os.path.join(CHECKPOINTS_DIR, f"{name_train}_BEST_EARLY.pth")
     if not os.path.exists(best_path):
 
-        ## fallback se vuoi usare l’altro salvataggio (_best.pth)
+        ## fallback se voglio usare l’altro salvataggio (_best.pth)
         #best_path = os.path.join(CHECKPOINTS_DIR, f"{name_train}_best.pth")
         raise FileNotFoundError(
             f"Checkpoint best non trovato: {best_path}. "
-            "Controlla che EarlyStopping stia salvando correttamente."
+            "Controllare che EarlyStopping stia salvando correttamente."
         )
 
     rete.load_state_dict(torch.load(best_path, map_location=DEVICE))
@@ -467,6 +468,6 @@ def execute(name_train: str,
             "freeze_until": getattr(rete, "freeze_until", "sconosciuto"), # strategia di modello usata
             "head": getattr(rete, "head_type", "linear"), # tipologia di testa usata
             "img_size": IMG_SIZE,
-            # "seed": 42,  # se lo uso usando davvero
+            # "seed": 42,  # se lo uso davvero
         }
     )

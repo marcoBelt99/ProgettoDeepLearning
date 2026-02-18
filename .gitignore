@@ -310,3 +310,6 @@ src/models/checkpoints
 
 # cose di IntelliJ Idea
 .idea
+
+# tutti i file che ho deprecato e che conto non mi servano più
+altro/deprecati

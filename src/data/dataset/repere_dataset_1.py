@@ -21,7 +21,7 @@ class RepereKeypointsDataset(Dataset):
             dataframe (pd.DataFrame): Contiene path_img e colonne punto_X/Y.
             img_dir (str): Directory delle immagini.
             trasformazioni (Compose) : trasformazioni specifiche del modello che si sta usando.
-            img_size (int): Dimensione a cui ridimensionare le immagini. Di default l'ho messa a 512, devo ovviamente renderla aderente al modello che uso
+            img_size (int): Dimensione a cui ridimensionare le immagini. Di default l'ho messa a 224, devo ovviamente renderla aderente al modello che uso
             gruppo_punti (list[int]): eventuale specifico gruppo di punti da considerare. Se non presente (None) allora vengono considerate tutte le colonne
                                       del dataset. Se presente, vengono considerate solo un sottoinsieme delle colonne.
                                       [Questo al fine di non creare più tutti e 4 i files csv separati, a partire dal csv master].
@@ -45,7 +45,7 @@ class RepereKeypointsDataset(Dataset):
         else:
             self.keypoint_cols = [c for c in dataframe.columns if c.startswith("punto_")]
 
-        # Applico le giuste trasformazioni
+        # Salvo come attributo le trasformazioni
         self.transform = trasformazioni
 
 
@@ -64,7 +64,7 @@ class RepereKeypointsDataset(Dataset):
 
         # Estrazione coordinate (in pixel)
         coords = row[ self.keypoint_cols ].values.astype("float32")
-        keypoints = [ (coords[i], coords[i + 1] ) for i in range(0, len(coords), 2) ]
+        keypoints = [ (coords[i], coords[i + 1] ) for i in range(0, len(coords), 2) ] # coppie (x,y)
 
 
         ## Applico le trasformazioni sia alle immagini,
@@ -84,14 +84,15 @@ class RepereKeypointsDataset(Dataset):
 
 
         ## Clip dei keypoints nel frame (evita valori <0 o >dimensione)
-        keypoints[:, 0] = np.clip(keypoints[:, 0], 0, larghezza - 1)
-        keypoints[:, 1] = np.clip(keypoints[:, 1], 0, altezza - 1)
+        keypoints[:, 0] = np.clip(keypoints[:, 0], 0, larghezza - 1) # prima colonna (tutte le x)
+        keypoints[:, 1] = np.clip(keypoints[:, 1], 0, altezza - 1) # seconda colonna (tutte le y)
 
 
         ## Normalizzazione robusta delle coordinate in [0,1]
         #  dovrebbe far convergere molto meglio la loss
         keypoints[:, 0] /= larghezza  # X
         keypoints[:, 1] /= altezza  # Y
+        # in questo modo preservo la proprietà di "Indipendenza dalla risoluzione."
 
         # Flatten ==> [x1, y1, x2, y2, ...]
         keypoints = torch.tensor(keypoints.flatten(), dtype=torch.float32)
@@ -101,7 +102,7 @@ class RepereKeypointsDataset(Dataset):
 
 
 
-
+# DEPRECATA (sostituita con lo split classico in train, val, test = 80, 10, 10)
 def crea_split_dataset(dataframe: pd.DataFrame,
                        img_dir: str,
                        img_size: int = 512,

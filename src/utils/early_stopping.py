@@ -10,11 +10,11 @@ class EarlyStopping:
     '''
     def __init__(self, patience=8, min_delta=0.0, checkpoint_path=None):
         self.patience = patience
-        self.min_delta = min_delta
+        self.min_delta = min_delta # impedisce al modello di continuare l'addestramento se il miglioramento è insignificante (ad es. di solo 0.000001 pixel nel MAE)
         self.checkpoint_path = checkpoint_path
 
         self.counter = 0
-        self.best_score = np.inf
+        self.best_score = np.inf # così mi assicuro che la prima epoca sia sempre considerata come il nuovo record
         self.early_stop = False
 
     def __call__(self, metrica, model):

@@ -109,7 +109,7 @@ def train_experiment_for_group(
     #### 2) Ottimizzatore
     ##################################################
     optimizer = torch.optim.Adam(
-        filter(lambda p: p.requires_grad, rete.parameters()),
+        filter(lambda p: p.requires_grad, rete.parameters()), # ottimizza solo sui parametri allenabili
         lr=lr)
     # optimizer = torch.optim.Adam(rete.parameters(), lr=LR)
 
@@ -227,14 +227,14 @@ def main():
        )
        """
 
-    allena_modello_by_nome_gruppo("GRUPPO1",
+    allena_modello_by_nome_gruppo("GRUPPO4",
                                   train_df,
                                   val_df,
                                   test_df,
                                   head,
                                   freeze_until,
                                   lr=LR,
-                                  num_epoche=10)
+                                  num_epoche=EPOCHS)
 
 
 

@@ -1,0 +1,7 @@
+esperimento,tot_epochs,best_epoch,best_mae,loss_function,lr,optimizer,scheduler,batch_size,epochs_run,freeze_until,head,img_size,note
+GRUPPO1_specialized_model_lr0.0001_ep20,20,19,3.41247980594635,SmoothL1Loss,0.0001,Adam,ReduceLROnPlateau,16,20,Specialized,Group1Model,224,resnet18
+GRUPPO4_specialized_model_lr0.0001_ep20,20,20,11.836273956298829,SmoothL1Loss,0.0001,Adam,ReduceLROnPlateau,16,20,Specialized,Group4Model,224,mobilenetv3
+GRUPPO4_specialized_model_lr0.0001_ep20,20,19,3.571296501159668,SmoothL1Loss,0.0001,Adam,ReduceLROnPlateau,16,20,Specialized,ModelloGruppo4,224,resnet18
+GRUPPO2_specialized_model_lr0.0001_ep21,21,17,4.09429612159729,SmoothL1Loss,0.0001,Adam,ReduceLROnPlateau,16,21,Specialized,ModelloGruppo2,224,resnet18
+GRUPPO3_specialized_model_lr0.0001_ep21,21,18,5.709584379196167,SmoothL1Loss,0.0001,Adam,ReduceLROnPlateau,16,21,Specialized,ModelloGruppo3,224,resnet18 tutto freezato
+GRUPPO3_specialized_model_lr0.0001_ep20,20,19,6.508307075500488,SmoothL1Loss,0.0001,Adam,ReduceLROnPlateau,16,20,Specialized,ModelloGruppo3,224,"resnet18 alleno layer4, fc"
