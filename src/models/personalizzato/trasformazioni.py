@@ -81,7 +81,7 @@ trasformazioni_custom = {
                 # la forma del viso --> sono sicure per i keypoints.
                 #####################################
 
-                A.HorizontalFlip(p=0.2),
+                # A.HorizontalFlip(p=0.2),
 
                 # A.RandomResizedCrop(
                 #     size=(IMG_SIZE, IMG_SIZE),

@@ -16,7 +16,7 @@ from configs.parametri_app import (
     DATASET_DIR,
     TESTING_DIR,
     DATAFRAME_MASTER,
-    RAGGRUPPAMENTI
+    RAGGRUPPAMENTI, NOMI_PUNTI_RAGGRUPPAMENTI
 )
 
 
@@ -35,8 +35,8 @@ GRUPPO = "GRUPPO4"
 # MODEL_PATH = os.path.join(CHECKPOINTS_DIR, "GRUPPO1_resnet18_best.pth")
 # MODEL_PATH = os.path.join(CHECKPOINTS_DIR, "GRUPPO1_resnet18_BEST_EARLY.pth")
 # MODEL_PATH = os.path.join(CHECKPOINTS_DIR, 'layer3_4_fc_best.pth')
-# MODEL_PATH = os.path.join(CHECKPOINTS_DIR, 'GRUPPO1_resnet18_layer3_linear_lr0.0001_epoche60_BEST_EARLY.pth')
 MODEL_PATH = os.path.join(CHECKPOINTS_DIR, 'GRUPPO4_resnet18_layer3_linear_lr0.0001_epoche60_BEST_EARLY.pth')
+# MODEL_PATH = os.path.join(CHECKPOINTS_DIR, 'GRUPPO4_resnet18_layer3_linear_lr0.0001_epoche60_BEST_EARLY.pth')
 
 
 
@@ -48,7 +48,7 @@ def carica_modello(model_path):
     model : ResNet = build_resnet18(
         num_outputs= ( len(RAGGRUPPAMENTI[GRUPPO]) if GRUPPO is not None else NUM_TOTALE_PUNTI) * 2,
         # pretrained=True,
-        pretrained= False,
+        pretrained= False, # tanto poi carico i pesi dal checkpoint
         head="linear"#,
         # freeze_until="layer3"
     ).to(DEVICE)
@@ -170,6 +170,8 @@ def show_prediction(img_path, model, dataset=None):
 
 if __name__ == "__main__":
 
+    print( f"Sto considerando il gruppo di punti: {NOMI_PUNTI_RAGGRUPPAMENTI[GRUPPO]}" )
+
     # 1) CARICAMENTO MODELLO DI RETE NEURALE
     print("Carico modello:", MODEL_PATH)
     model = carica_modello(MODEL_PATH)
@@ -203,3 +205,6 @@ if __name__ == "__main__":
     # ancora con un'immagine esterna
     img_external = os.path.join(TESTING_DIR, "Convex_Concave/138.jpg")
     show_prediction(img_external, model)
+
+
+## Su immagini esterne non annotate il risultato è solo qualitativo e può degradare per domain shift

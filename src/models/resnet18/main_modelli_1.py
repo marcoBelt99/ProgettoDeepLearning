@@ -227,7 +227,7 @@ def main():
        )
        """
 
-    allena_modello_by_nome_gruppo("GRUPPO4",
+    allena_modello_by_nome_gruppo("GRUPPO1",
                                   train_df,
                                   val_df,
                                   test_df,

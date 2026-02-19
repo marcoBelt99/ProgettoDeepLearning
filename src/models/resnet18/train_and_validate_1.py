@@ -193,7 +193,7 @@ def training_loop(  writer : SummaryWriter, # writer di tensorboard
     #  con punti che sbagliano tanto ("outlier").
     # TODO: valutare se passare criterion come parametro
     # criterion = nn.MSELoss() #
-    criterion = nn.SmoothL1Loss(beta=1.0 / IMG_SIZE) # ≈ soglia di 1 pixel (ottimo per 224×224)
+    criterion = nn.SmoothL1Loss(beta=1.0 / IMG_SIZE) # soglia circa di 1 pixel (ottimo per 224×224)
     loop_start = timer()
 
     ## Gestione del nome dell'esperimento di training
@@ -425,6 +425,7 @@ def execute(name_train: str,
 
     criterion = nn.SmoothL1Loss(beta=1.0 / IMG_SIZE)
 
+    # Chiamo quindi ancora la validate(), però ovviamente sul test set, e usando i pesi del modello con migliori prestazioni
     loss_test, mae_test, med_test = validate(
         rete, data_loader_test, DEVICE, criterion, num_outputs_modello
     )
@@ -432,7 +433,7 @@ def execute(name_train: str,
     print(f"TEST (best checkpoint) -> Loss: {loss_test:.4f} | MAE(px): {mae_test:.3f} | MED(px): {med_test:.3f}")
 
 
-    ## Visualizzazione griglia dal TEST set (predetti vs reali)
+    ## Visualizzazione griglia dal TEST set (predetti contro reali)
     try:
         run_name = name_train
         grid_path = os.path.join("plots", f"{run_name}_testgrid.png")
@@ -441,7 +442,7 @@ def execute(name_train: str,
             test_loader=data_loader_test,
             num_outputs_modello=num_outputs_modello,
             img_size=IMG_SIZE,
-            n_images=10,
+            n_images=10, # voglio 10 immagini (5 su una riga, 5 sull'altra)
             cols=5,
             save_path=grid_path,
             title=f"TEST GRID - {run_name}"

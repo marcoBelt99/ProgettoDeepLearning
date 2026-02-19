@@ -1,0 +1,3 @@
+esperimento,best_epoch,best_mae,lr,batch_size,epochs_run,freeze_until,head,img_size,optimizer,scheduler,seed
+GRUPPO2_resnet34_g2_layer3_mlp_lr0.0002_ep40,26,3.150719439983368,0.0002,8,38,layer3,mlp,224,AdamW,plateau,42
+GRUPPO2_resnet34_g2_layer3_mlp_lr0.0002_ep40,18,3.765762114524841,0.0002,8,30,layer3,mlp,224,AdamW,plateau,42

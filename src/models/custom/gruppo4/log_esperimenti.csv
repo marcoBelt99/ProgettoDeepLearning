@@ -1,0 +1,2 @@
+esperimento,best_epoch,best_mae,lr,batch_size,epochs_run,freeze_until,head,img_size,optimizer,scheduler,seed
+GRUPPO4_smallcnn_g4_none_internal_lr0.0005_ep30,30,7.381264305114746,0.0005,32,30,none,internal,224,AdamW,plateau,42

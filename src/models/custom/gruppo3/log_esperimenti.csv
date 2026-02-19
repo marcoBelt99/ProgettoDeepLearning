@@ -1,0 +1,2 @@
+esperimento,best_epoch,best_mae,lr,batch_size,epochs_run,freeze_until,head,img_size,optimizer,scheduler,seed
+GRUPPO3_mobilenetv3_g3_none_mlp_lr0.0003_ep45,45,7.489735412597656,0.0003,16,45,none,mlp,256,AdamW,plateau,42
