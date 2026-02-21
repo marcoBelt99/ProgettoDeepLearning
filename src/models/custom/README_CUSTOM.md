@@ -15,8 +15,8 @@ Pacchetto "custom" per allenare 4 modelli diversi (uno per gruppo) mantenendo la
 - `gruppo1/`, `gruppo2/`, `gruppo3/`, `gruppo4/`: definizioni dei modelli + cartelle output
 
 ## Come usare
-1) Copia questa cartella in: `src/models/custom/` del tuo progetto.
-2) Da root del progetto, lancia:
+
+- Da root del progetto, lancia:
    `python src/models/custom/main_modelli_custom.py`
 
 Nel file `main_modelli_custom.py` trovi la variabile `GRUPPO_DA_ALLENARE`.

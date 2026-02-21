@@ -187,7 +187,7 @@ def execute(
 
     writer = SummaryWriter(log_dir=str(logs_dir))
 
-    # Loss: SmoothL1 con beta ~ 1px (in normalized space)
+    # Loss: SmoothL1 con beta ~ 1px
     criterion = nn.SmoothL1Loss(beta=1.0 / float(img_size))
 
     # Scheduler

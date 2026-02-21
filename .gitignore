@@ -308,8 +308,24 @@ fabric.properties
 src/models/resnet18/logs
 src/models/checkpoints
 
+# Modelli custom per i vari gruppi
+src/models/custom/gruppo1/checkpoints
+src/models/custom/gruppo1/logs
+
+src/models/custom/gruppo2/checkpoints
+src/models/custom/gruppo2/logs
+
+src/models/custom/gruppo3/checkpoints
+src/models/custom/gruppo3/logs
+
+src/models/custom/gruppo4/checkpoints
+src/models/custom/gruppo4/logs
+
+
 # cose di IntelliJ Idea
 .idea
 
 # tutti i file che ho deprecato e che conto non mi servano più
 altro/deprecati
+
+

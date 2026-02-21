@@ -67,54 +67,58 @@ def test_calcola_mae_pixel_known_value():
 ############# mean_euclidean_distance ##########
 ################################################
 """
-Vediamo il codice, riga per riga
-1️⃣ Si fa il reshape (view)
+
+Riga per riga:
+
+
+###################################################
+1. Si fa il reshape (view)
 preds = preds.view(-1, num_outputs_modello, 2) * img_size
 targets = targets.view(-1, num_outputs_modello, 2) * img_size
 
 Cosa significa?
 
-Il tuo modello produce un tensore:
+Il mio modello produce un tensore: [batch_size, num_outputs_modello * 2]
 
-[batch_size, num_outputs_modello * 2]
-
-
-Esempio per 14 punti:
-
-shape = [batch, 28]
-
+Esempio per 14 punti:   shape = [batch, 28]
 
 Ogni punto ha 2 valori: x, y
 
-Quindi si trasforma in:
-
-[batch, num_outputs_modello, 2]
+Quindi si trasforma in: [batch, num_outputs_modello, 2]
 
 
-Esempio:
+Esempio:   [8, 14, 2]
 
-[8, 14, 2]
 
-2️⃣ Si moltiplica per img_size
 
-Perché?
 
-Durante training tu normalizzi i keypoints in [0,1].
+
+
+
+###################################################
+2. Si moltiplica per img_size
+
+Perché? Durante training normalizzo i keypoints in [0,1].
 
 Quindi:
 
 0.0 → 0 pixel
 
-1.0 → img_size pixel (224 nel tuo caso)
+1.0 → img_size pixel (224 nel mio caso)
 
 Moltiplicando:
 
 * img_size
 
 
-li riporti alle coordinate reali in pixel.
+li riporto alle coordinate reali in pixel.
 
-3️⃣ Calcolo della distanza euclidea punto per punto
+
+
+
+
+###################################################
+3. Calcolo della distanza euclidea punto per punto
 dists = torch.norm(preds - targets, dim=2)
 
 
@@ -133,31 +137,31 @@ shape = [batch, num_outputs_modello]
 Ovvero:
 la distanza di ogni punto, per ogni immagine.
 
-4️⃣ Media su tutti i punti e su tutto il batch
-return dists.mean().item()
+4. Media su tutti i punti e su tutto il batch
 
+return dists.mean().item()
 
 Questo fa:
 
-media sulle immagini del batch
+    media sulle immagini del batch
 
-media sui keypoint della stessa immagine
+    media sui keypoint della stessa immagine
 
 E produce un solo numero:
 
 Distanza euclidea media globale, in pixel.
 
-🎯 RISULTATO
+RISULTATO
 
-La funzione restituisce:
-
-👉 “In media, quanto sono lontani i keypoint predetti da quelli reali?”
+La funzione restituisce: 'In media, quanto sono lontani i keypoint predetti da quelli reali?'
 
 Espresso in pixel, quindi interpretabile.
 
-🔢 Esempio numerico chiarissimo
 
-Supponiamo 2 keypoint:
+
+Esempio numerico chiarissimo
+
+suppongo di avere 2 keypoint:
 
 Pred:
 
@@ -202,15 +206,6 @@ La funzione restituisce:
 
 14.14
 
-🧠 In sintesi
-
-La funzione:
-
-✔ prende keypoints normalizzati
-✔ li trasforma in coordinate reali (pixel)
-✔ calcola la distanza euclidea punto per punto
-✔ fa la media su batch e su punti
-✔ restituisce quanto il modello sbaglia in pixel
 """
 def test_mean_euclidean_distance_zero():
     """Se pred = target, la distanza euclidea media è 0."""
